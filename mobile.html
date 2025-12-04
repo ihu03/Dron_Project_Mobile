@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#050a17" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Seoul ADS-B Mobile</title>
   <link rel="stylesheet" href="./leaflet.css" />
   <style>
@@ -20,10 +23,13 @@
 
     html, body {
       height: 100%;
+      width: 100%;
+      background: #050a17;
     }
 
     body {
       margin: 0;
+      padding: 0;
       background: var(--bg);
       font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
       color: var(--text);
@@ -32,16 +38,23 @@
 
     #map {
       position: fixed;
-      inset: 0;
-      filter: brightness(0.4);
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: #050a17;
+    }
+
+    /* Dim only the map tiles (not markers/UI) */
+    .leaflet-tile-pane {
+      filter: brightness(0.4);
     }
 
     .hud {
       position: fixed;
-      top: 6px;
-      left: 8px;
-      right: 8px;
+      top: calc(env(safe-area-inset-top, 0px) + 6px);
+      left: calc(env(safe-area-inset-left, 0px) + 8px);
+      right: calc(env(safe-area-inset-right, 0px) + 8px);
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
@@ -80,9 +93,9 @@
 
     .panel {
       position: fixed;
-      bottom: 16px;
-      left: 12px;
-      right: 12px;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      left: calc(env(safe-area-inset-left, 0px) + 12px);
+      right: calc(env(safe-area-inset-right, 0px) + 12px);
       padding: 12px 14px;
       border-radius: 18px;
       background: var(--panel);
@@ -102,6 +115,17 @@
       display: grid;
       gap: 4px;
       min-width: 120px;
+    }
+
+    /* Plane icons */
+    .plane-icon {
+      display: inline-block;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    .plane-icon svg {
+      display: block;
     }
 
     .error {
@@ -129,7 +153,7 @@
     }
   </style>
 </head>
-<body>
+  <body>
   <div id="map"></div>
   <div class="hud">
     <div class="pill" id="status-pill">
@@ -152,6 +176,7 @@
       maxZoom: 18,
       attribution: "(c) OpenStreetMap contributors",
     }).addTo(map);
+    map.attributionControl.setPrefix("");
 
     const statusPill = document.getElementById("status-pill");
     const statusText = document.getElementById("status-text");
@@ -164,6 +189,71 @@
     const markers = new Map(); // hex -> { marker, lastSeen }
     const STALE_MS = 45000;
     const POLL_MS = 2000;
+
+    const FT_TO_M = 0.3048;
+
+    function altitudeMeters(ac) {
+      const ft = Number.isFinite(ac?.alt_baro) ? ac.alt_baro : null;
+      return ft === null ? null : ft * FT_TO_M;
+    }
+
+    function hexToRgb(hex) {
+      const v = hex.replace("#", "");
+      return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
+    }
+
+    function lerpColor(a, b, t) {
+      const clamped = Math.min(Math.max(t, 0), 1);
+      const [ar, ag, ab] = hexToRgb(a);
+      const [br, bg, bb] = hexToRgb(b);
+      const rr = Math.round(ar + (br - ar) * clamped);
+      const rg = Math.round(ag + (bg - ag) * clamped);
+      const rb = Math.round(ab + (bb - ab) * clamped);
+      return `#${rr.toString(16).padStart(2, "0")}${rg.toString(16).padStart(2, "0")}${rb.toString(16).padStart(2, "0")}`;
+    }
+
+    function adjustColor(hex, t = 0) {
+      const [r, g, b] = hexToRgb(hex);
+      const clamp = (v) => Math.min(255, Math.max(0, Math.round(v)));
+      const mix = (ch) => (t >= 0 ? ch + (255 - ch) * t : ch * (1 + t));
+      return `#${clamp(mix(r)).toString(16).padStart(2, "0")}${clamp(mix(g)).toString(16, "0")}${clamp(mix(b)).toString(16, "0")}`;
+    }
+
+    function altitudeToColor(ac) {
+      const altM = Math.max(0, Number.isFinite(altitudeMeters(ac)) ? altitudeMeters(ac) : 0);
+      const bands = [
+        { max: 2000, from: adjustColor("#00A8FF", -0.15), to: adjustColor("#00A8FF", 0.25) },
+        { max: 8000, from: adjustColor("#22C55E", -0.15), to: adjustColor("#22C55E", 0.25) },
+        { max: Infinity, from: adjustColor("#A855F7", -0.15), to: adjustColor("#A855F7", 0.25) },
+      ];
+      let prevMax = 0;
+      for (const band of bands) {
+        if (altM <= band.max) {
+          const range = band.max - prevMax;
+          const t = !Number.isFinite(range) ? 0 : (altM - prevMax) / Math.max(range, 1);
+          return lerpColor(band.from, band.to, t);
+        }
+        prevMax = band.max;
+      }
+      return bands[bands.length - 1].to;
+    }
+
+    function createPlaneIcon(ac, isSelected = false) {
+      const heading = Number.isFinite(ac.track) ? ac.track : 0;
+      const color = altitudeToColor(ac);
+      const fill = isSelected ? color : color;
+      const strokeAttrs = isSelected
+        ? 'stroke="rgba(0,0,0,0.45)" stroke-width="1.5" stroke-linejoin="round"'
+        : 'stroke="none"';
+      return L.divIcon({
+        className: "plane-icon",
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        html: `<svg viewBox="0 0 24 24" width="28" height="28" style="transform: rotate(${heading}deg); color:${fill};" fill="currentColor">
+          <path d="M2 13l1.5-2 7-1 1-6h1l1 6 7 1 1.5 2-1.5 2-7 1-1 6h-1l-1-6-7-1z" ${strokeAttrs} />
+        </svg>`
+      });
+    }
 
     function formatTime() {
       const now = new Date();
@@ -206,22 +296,14 @@
         const pos = [ac.lat, ac.lon];
         seen.add(hex);
 
-        const color = ac.alt_baro > 15000 ? "#a855f7" : ac.alt_baro > 8000 ? "#22c55e" : "#3b82f6";
         if (!markers.has(hex)) {
-          const marker = L.circleMarker(pos, {
-            radius: 6,
-            color,
-            weight: 2,
-            opacity: 0.9,
-            fillColor: color,
-            fillOpacity: 0.7,
-          }).addTo(map);
-          marker.bindTooltip(`${ac.flight || ac.hex || "Unknown"}`, { direction: "top", offset: [0, -6] });
+          const marker = L.marker(pos, { icon: createPlaneIcon(ac, false) }).addTo(map);
+          marker.bindTooltip(`${ac.flight || ac.hex || "Unknown"}`, { direction: "top", offset: [0, -8] });
           markers.set(hex, { marker, lastSeen: now });
         } else {
           const entry = markers.get(hex);
           entry.marker.setLatLng(pos);
-          entry.marker.setStyle({ color, fillColor: color });
+          entry.marker.setIcon(createPlaneIcon(ac, false));
           entry.lastSeen = now;
         }
       });
