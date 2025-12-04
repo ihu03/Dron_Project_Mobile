@@ -39,6 +39,128 @@ body {
   backdrop-filter: blur(6px);
 }
 
+.topbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.topbar-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pwa-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pwa-button {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: linear-gradient(90deg, #0f172a, #13244d);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
+}
+
+.pwa-button:hover {
+  background: linear-gradient(90deg, #12284f, #183468);
+  transform: translateY(-1px);
+}
+
+.pwa-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pwa-button.ghost {
+  background: #0f162c;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.pwa-button.hidden {
+  display: none;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  color: var(--text);
+  font-weight: 700;
+  font-size: 12px;
+  border: 1px solid var(--border);
+  line-height: 1.2;
+}
+
+.pill::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6);
+}
+
+.pill-idle::before {
+  background: #fbbf24;
+  box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.5);
+}
+
+.pill-warn::before {
+  background: #f87171;
+  box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.5);
+}
+
+.pill-muted::before {
+  background: #8ca0c3;
+  box-shadow: 0 0 0 0 rgba(140, 160, 195, 0.4);
+}
+
+@media (max-width: 980px) {
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 640px) {
+  .topbar-right {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pwa-actions {
+    width: 100%;
+  }
+}
+
 .title {
   display: flex;
   align-items: center;

@@ -1,0 +1,29 @@
+{
+  "name": "Seoul ADS-B Viewer",
+  "short_name": "ADS-B Map",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#050a17",
+  "theme_color": "#0b1224",
+  "description": "서울 ADS-B 라이브 맵을 오프라인에서도 빠르게 확인하세요.",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -79,6 +79,214 @@ let detailImageReqId = 0;
 const mapBrightnessInput = document.getElementById("map-brightness");
 const mapBrightnessValue = document.getElementById("map-brightness-value");
 let isFakeFormOpen = false;
+let lastSafetyAlertAt = 0;
+const SAFETY_ALERT_COOLDOWN_MS = 10000; // 현재는 미사용(재알림 막기용)
+let alertedSafetyHexes = new Set();
+
+// PWA/Push DOM
+const pushStatusEl = document.getElementById("push-status");
+const pushEnableBtn = document.getElementById("push-enable");
+const pushTestBtn = document.getElementById("push-test");
+const installBtn = document.getElementById("install-btn");
+
+// PWA helpers
+let swRegistration = null;
+let deferredInstallPrompt = null;
+const VAPID_PUBLIC_KEY_ENDPOINT = "/vapid-public-key";
+
+function setPushStatus(text, tone = "idle") {
+  if (!pushStatusEl) return;
+  pushStatusEl.textContent = text;
+  pushStatusEl.classList.remove("pill-idle", "pill-warn", "pill-muted");
+  if (tone === "warn") {
+    pushStatusEl.classList.add("pill-warn");
+  } else if (tone === "muted") {
+    pushStatusEl.classList.add("pill-muted");
+  } else if (tone === "idle") {
+    pushStatusEl.classList.add("pill-idle");
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
+async function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) {
+    setPushStatus("서비스워커 미지원", "warn");
+    pushEnableBtn?.setAttribute("disabled", "disabled");
+    pushTestBtn?.setAttribute("disabled", "disabled");
+    return null;
+  }
+  if (swRegistration) return swRegistration;
+  try {
+    swRegistration = await navigator.serviceWorker.register("/sw.js");
+    swRegistration = await navigator.serviceWorker.ready;
+    setPushStatus("PWA 준비됨", "idle");
+    return swRegistration;
+  } catch (e) {
+    console.warn("SW register failed", e);
+    setPushStatus("서비스워커 등록 실패", "warn");
+    return null;
+  }
+}
+
+async function saveSubscription(subscription) {
+  try {
+    await fetch("/api/subscriptions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription }),
+    });
+  } catch (e) {
+    console.warn("subscription save failed", e);
+  }
+}
+
+async function ensurePushActive() {
+  const reg = await registerServiceWorker();
+  if (!reg) return false;
+  if (!("Notification" in window) || !("PushManager" in window)) {
+    setPushStatus("푸시 미지원", "warn");
+    pushEnableBtn?.setAttribute("disabled", "disabled");
+    pushTestBtn?.setAttribute("disabled", "disabled");
+    return false;
+  }
+
+  const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+  if (permission !== "granted") {
+    setPushStatus("알림 권한 거부됨", "warn");
+    return false;
+  }
+
+  let subscription = await reg.pushManager.getSubscription();
+  try {
+    if (!subscription) {
+      const res = await fetch(VAPID_PUBLIC_KEY_ENDPOINT, { cache: "no-store" });
+      if (!res.ok) throw new Error("VAPID 키 가져오기 실패");
+      const vapidKey = (await res.text()).trim();
+      const appServerKey = urlBase64ToUint8Array(vapidKey);
+      subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appServerKey });
+    }
+    await saveSubscription(subscription);
+    setPushStatus("알림 활성화", "success");
+    pushEnableBtn?.setAttribute("disabled", "disabled");
+    return true;
+  } catch (e) {
+    console.warn("push subscription failed", e);
+    setPushStatus("구독 실패", "warn");
+    return false;
+  }
+}
+
+async function sendTestPush() {
+  const ready = await ensurePushActive();
+  if (!ready) return;
+  try {
+    const res = await fetch("/api/push/test", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "ADS-B 테스트 알림",
+        body: "테스트 알림이 도착했습니다.",
+        url: "/",
+      }),
+    });
+    if (!res.ok) throw new Error(`테스트 알림 실패 (${res.status})`);
+    setPushStatus("테스트 알림 전송", "success");
+  } catch (e) {
+    console.warn("test push failed", e);
+    setPushStatus("테스트 알림 실패", "warn");
+  }
+}
+
+async function sendSafetyPush(entries = []) {
+  if (!entries.length) return;
+  const ready = await ensurePushActive();
+  if (!ready) return;
+  try {
+    // 중복 푸시 알림 방지를 위해 현재는 미사용
+    return;
+  } catch (e) {
+    console.warn("safety push send failed", e);
+  }
+}
+
+function initPwaUi() {
+  registerServiceWorker();
+
+  pushEnableBtn?.addEventListener("click", () => {
+    setPushStatus("권한 확인 중...", "muted");
+    ensurePushActive();
+  });
+  pushTestBtn?.addEventListener("click", () => {
+    setPushStatus("테스트 전송 중...", "muted");
+    sendTestPush();
+  });
+
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    installBtn?.classList.remove("hidden");
+  });
+
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    installBtn.classList.add("hidden");
+  });
+
+  window.addEventListener("appinstalled", () => {
+    installBtn?.classList.add("hidden");
+  });
+}
+
+async function notifySafety(entries = []) {
+  if (!entries.length || !("Notification" in window)) return;
+  if (Notification.permission === "default") {
+    try {
+      await Notification.requestPermission();
+    } catch {
+      /* ignore */
+    }
+  }
+  if (Notification.permission !== "granted") return;
+
+  const title = `안전반경 침입: ${entries.length}대`;
+  const body = entries
+    .map((e) => `${e.call || e.hex || "unknown"} (${e.dist?.toFixed?.(1) || "?"}km)`)
+    .join(", ");
+  const options = {
+    body,
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    data: { url: "/" },
+  };
+
+  try {
+    const reg = await registerServiceWorker();
+    if (reg?.showNotification) {
+      reg.showNotification(title, options);
+      return;
+    }
+  } catch {
+    /* ignore */
+  }
+  try {
+    new Notification(title, options);
+  } catch (e) {
+    console.warn("Notification failed", e);
+  }
+}
 
 function altitudeMeters(ac) {
   const ft = Number.isFinite(ac?.alt_baro) ? ac.alt_baro : null;
@@ -181,6 +389,10 @@ function formatAltitudeKilometers(ac, maxFractionDigits = 1) {
   return Number.isFinite(km)
     ? km.toLocaleString("en-US", { maximumFractionDigits: maxFractionDigits })
     : "-";
+}
+
+function normalizeHex(hex) {
+  return (hex || "").trim().toUpperCase();
 }
 
 function createIcon(ac, color, isSelected) {
@@ -530,6 +742,9 @@ function removeFake(hex) {
   fakePlanes = fakePlanes.filter((f) => f.hex !== hex);
   latestAircraft = latestAircraft.filter((p) => p.hex !== hex);
   suppressAutoSelect = false;
+  alertedSafetyHexes = new Set();
+  lastSafetyHexes = new Set();
+  lastSafetyAlertAt = 0;
 
   if (markers.has(hex)) {
     map.removeLayer(markers.get(hex).marker);
@@ -761,6 +976,9 @@ function createFakePlane() {
   const altFt = Number.isFinite(alt) ? alt / FT_TO_M : 0; // 입력은 미터, 내부는 ft로 저장
   const plane = { hex, flight, lat, lon, alt_baro: altFt };
   fakePlanes = [plane];
+  lastSafetyHexes = new Set();
+  lastSafetyAlertAt = 0;
+  alertedSafetyHexes = new Set();
   addOrUpdateFakeMarker(plane);
   latestAircraft = [...latestAircraft.filter((p) => p.hex !== hex), plane];
   renderTable(latestAircraft);
@@ -910,6 +1128,7 @@ function updateFakeStats(aircraft, options = {}) {
   let minEta = null;
   let immediateDanger = false;
   const safetyHits = [];
+  const safetyDetails = [];
 
   const maxRangeRaw = parseFloat(etaMaxInput?.value || "10");
   const maxRange = Number.isFinite(maxRangeRaw) ? Math.max(0, maxRangeRaw) : 10;
@@ -920,6 +1139,8 @@ function updateFakeStats(aircraft, options = {}) {
   aircraft.forEach((p) => {
     if (!Number.isFinite(p.lat) || !Number.isFinite(p.lon)) return;
     if (p.hex === target.hex) return;
+    const hex = normalizeHex(p.hex);
+    if (!hex) return;
     const distKm = haversineKm(target.lat, target.lon, p.lat, p.lon);
     const inRadar = isWithinCylinder(target, p, radarRadiusKm, { ignoreAltitude: true });
     const inSafety = isWithinCylinder(target, p, safetyRadiusKm);
@@ -927,7 +1148,8 @@ function updateFakeStats(aircraft, options = {}) {
     if (inRadar) radarCount++;
     if (inSafety) {
       immediateDanger = true;
-      if (p.hex) safetyHits.push(p.hex);
+      safetyHits.push(hex);
+      safetyDetails.push({ hex, call: formatCallsign(p), dist: distKm });
     } else if (p.gs) {
       const mps = p.gs * 0.514444;
       if (mps > 1) {
@@ -979,7 +1201,15 @@ function updateFakeStats(aircraft, options = {}) {
   }
 
   const hadNoSafety = lastSafetyHexes.size === 0;
+  const prev = new Set(lastSafetyHexes);
   lastSafetyHexes = new Set(safetyHits);
+  const alertable = safetyDetails.filter((item) => !alertedSafetyHexes.has(item.hex));
+  if (alertable.length > 0) {
+    notifySafety(alertable);
+    // 서버 푸시까지 보내면 브라우저 알림이 중복될 수 있어 로컬 알림만 사용
+    alertable.forEach((item) => alertedSafetyHexes.add(item.hex));
+    lastSafetyAlertAt = Date.now();
+  }
   if (hadNoSafety && safetyHits.length > 0) {
     const firstHex = safetyHits[0];
     if (firstHex) {
@@ -1136,6 +1366,9 @@ async function loadConfig() {
     console.warn("config.json load skipped", e);
   }
 }
+
+initPwaUi();
+
 
 // 초기 부팅 + 플로팅 입력폼 드래그 설정
 (async () => {

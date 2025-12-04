@@ -6,19 +6,31 @@
   <title>Seoul ADS-B Live Map</title>
   <link rel="stylesheet" href="./leaflet.css" />
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0b1224" />
 </head>
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <div>
+      <div class="topbar-left">
         <div class="title">
           <span class="ping-dot" aria-hidden="true"></span>
           Seoul ADS-B Viewer
         </div>
         <div class="subtitle">Data: seoul.flightfeeder.page</div>
       </div>
-      <div id="stats" class="stats">Loading...</div>
-      <div id="ping" class="stats">Ping: -- ms</div>
+      <div class="topbar-right">
+        <div class="topbar-stats">
+          <div id="stats" class="stats">Loading...</div>
+          <div id="ping" class="stats">Ping: -- ms</div>
+          <span id="push-status" class="pill pill-idle">알림 대기</span>
+        </div>
+        <div class="pwa-actions">
+          <button id="push-enable" class="pwa-button" type="button" title="브라우저 알림 권한 요청">알림 허용</button>
+          <button id="push-test" class="pwa-button ghost" type="button" title="저장된 구독으로 테스트 푸시 전송">테스트 알림</button>
+          <button id="install-btn" class="pwa-button ghost hidden" type="button" title="홈 화면에 설치">앱 설치</button>
+        </div>
+      </div>
     </header>
     <main class="layout">
       <div class="map-wrap">
