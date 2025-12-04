@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seoul ADS-B Live Map</title>
+  <link rel="stylesheet" href="./leaflet.css" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="title">
+          <span class="ping-dot" aria-hidden="true"></span>
+          Seoul ADS-B Viewer
+        </div>
+        <div class="subtitle">Data: seoul.flightfeeder.page</div>
+      </div>
+      <div id="stats" class="stats">Loading...</div>
+      <div id="ping" class="stats">Ping: -- ms</div>
+    </header>
+    <main class="layout">
+      <div class="map-wrap">
+        <div id="map" class="map"></div>
+        <div id="detail-panel" class="detail-panel" hidden>
+          <div class="detail-header">
+            <div class="detail-titles">
+              <div id="detail-callsign" class="detail-callsign">-</div>
+              <div id="detail-hex" class="detail-hex">-</div>
+            </div>
+            <button id="detail-close" aria-label="?�기" type="button">×</button>
+          </div>
+          <div class="detail-body">
+            <div class="detail-row">
+              <span>?�치</span><span id="detail-pos">-</span>
+            </div>
+            <div class="detail-row">
+              <span>고도</span><span id="detail-alt">-</span>
+            </div>
+            <div class="detail-row">
+              <span>?�도</span><span id="detail-speed">-</span>
+            </div>
+            <div class="detail-row">
+              <span>방향</span><span id="detail-track">-</span>
+            </div>
+            <div class="detail-row">
+              <span>?�별</span><span id="detail-squawk">-</span>
+            </div>
+            <div class="detail-row">
+              <span>?�록�??</span><span id="detail-country">-</span>
+            </div>
+            <button id="detail-delete-fake" class="ghost-btn" type="button" hidden>기체 ??��</button>
+            <div class="detail-image-wrap" hidden>
+              <img id="detail-image" alt="기체 ?��?지" />
+            </div>
+            <div class="detail-note" id="detail-note">ADS-B Live</div>
+          </div>
+        </div>
+        <div class="map-brightness-control" aria-label="지??밝기 조절">
+          <div class="brightness-label">
+            <span>지??밝기</span>
+            <span id="map-brightness-value">70%</span>
+          </div>
+          <input id="map-brightness" type="number" min="10" max="100" step="1" value="70" inputmode="numeric" />
+        </div>
+      </div>
+      <aside class="sidebar">
+        <div class="sidebar-content">
+          <div class="controls">
+            <input id="search" type="text" placeholder="Filter by callsign or hex" />
+            <button id="clearFilter" type="button">Clear</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Callsign</th>
+                  <th>Lat</th>
+                  <th>Lon</th>
+                  <th>Alt (m)</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+          </div>
+          <div class="fake-panel">
+            <div class="panel-title">?�황 / 경고</div>
+            <div class="input-row">
+              <label for="radar-radius-input">
+                ?�이??반경 (km)
+                <span class="value"><input id="radar-radius-value" type="number" min="10" max="400" step="1" value="120" inputmode="numeric" /></span>
+              </label>
+              <div class="single-range">
+                <div class="range-rail"></div>
+                <div class="range-fill" id="radar-range-fill"></div>
+                <input id="radar-radius-input" type="range" min="10" max="400" step="1" value="120" />
+              </div>
+            </div>
+            <div class="input-row">
+              <label for="safety-radius-input">
+                ?�전 반경 (km)
+                <span class="value"><input id="safety-radius-value" type="number" min="1" max="100" step="1" value="5" inputmode="numeric" /></span>
+              </label>
+              <div class="single-range">
+                <div class="range-rail"></div>
+                <div class="range-fill" id="safety-range-fill"></div>
+                <input id="safety-radius-input" type="range" min="1" max="100" step="1" value="5" />
+              </div>
+            </div>
+            <div class="input-row double">
+              <label>
+                고도 ?�용 범위 (km)
+                <span class="value">
+                  <input id="alt-min-value" type="number" min="0" max="6" step="0.1" value="0" inputmode="decimal" />
+                  ~
+                  <input id="alt-max-value" type="number" min="0" max="6" step="0.1" value="6" inputmode="decimal" />
+                </span>
+              </label>
+              <div class="range-pair">
+                <div class="range-rail"></div>
+                <div class="range-fill" id="alt-range-fill"></div>
+                <input id="alt-min-input" type="range" min="0" max="6" step="0.1" value="0" />
+                <input id="alt-max-input" type="range" min="0" max="6" step="0.1" value="6" />
+              </div>
+            </div>
+            <div class="input-row double">
+              <label>
+                ETA 범위(�?
+                <span class="value">
+                  <input id="eta-min-value" type="number" min="0" max="10" step="1" value="0" inputmode="numeric" />
+                  ~
+                  <input id="eta-max-value" type="number" min="0" max="10" step="1" value="10" inputmode="numeric" />
+                </span>
+              </label>
+              <div class="range-pair">
+                <div class="range-rail"></div>
+                <div class="range-fill" id="eta-range-fill"></div>
+                <input id="eta-min-input" type="range" min="0" max="10" step="1" value="0" />
+                <input id="eta-max-input" type="range" min="0" max="10" step="1" value="10" />
+              </div>
+            </div>
+            <div class="stat-row"><span>?�이????기체</span><span id="radar-count">0</span></div>
+            <div class="stat-row"><span>최소 ?�근 ETA</span><span id="eta">-</span></div>
+            <div class="warn" id="warn-msg">감시 중인 가??기체가 ?�습?�다.</div>
+            <div class="list" id="approach-list"></div>
+          </div>
+        </div>
+      </aside>
+    </main>
+    <div class="floating-form">
+      <div class="form-header">
+        <div class="panel-title">기체 추�?</div>
+        <button id="close-fake-form" class="close-btn" type="button" aria-label="?�기">×</button>
+      </div>
+      <div class="form-row">
+        <label>Callsign</label>
+        <input id="fake-callsign" type="text" placeholder="FAKE01" />
+      </div>
+      <div class="form-row">
+        <label>Lat</label>
+        <input id="fake-lat" type="number" step="0.0001" placeholder="37.5665" />
+      </div>
+      <div class="form-row">
+        <label>Lon</label>
+        <input id="fake-lon" type="number" step="0.0001" placeholder="126.9780" />
+      </div>
+      <div class="form-row">
+        <label>Alt(m)</label>
+        <input id="fake-alt" type="number" step="10" placeholder="3658" />
+      </div>
+      <button id="add-fake" type="button" class="add-btn">추�?</button>
+    </div>
+    <button id="fake-form-trigger" class="floating-trigger" type="button">기체 추�?</button>
+  </div>
+
+  <script src="./leaflet.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
+

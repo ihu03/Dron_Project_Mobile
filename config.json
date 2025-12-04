@@ -1,0 +1,9 @@
+{
+  "_comment": "poll interval ms (default 500)",
+  "pollMs": 500,
+  "radarRadiusMaxKm": 400,
+  "safetyRadiusMaxKm": 100,
+  "etaMinMinutes": 0,
+  "etaMaxMinutes": 10,
+  "mapBrightnessPercent": 40
+}
