@@ -181,7 +181,25 @@
     <button id="fake-form-trigger" class="floating-trigger" type="button">기체 추가</button>
   </div>
 
+  <div id="mobile-install-sheet" class="mobile-install" aria-live="polite">
+    <div class="mobile-install__panel">
+      <div class="mobile-install__header">
+        <div>
+          <div class="mobile-install__title">모바일 이 화면을 앱으로 보기</div>
+          <div class="mobile-install__subtitle">다운로드하면 홈 화면에 바로가기 아이콘이 생성돼요.</div>
+        </div>
+        <button id="mobile-install-close" class="mobile-install__close" type="button" aria-label="닫기">×</button>
+      </div>
+      <div class="mobile-install__actions">
+        <button id="mobile-install-download" type="button" class="mobile-install__primary">다운로드/설치</button>
+        <button id="mobile-install-dismiss" type="button" class="mobile-install__secondary">나중에</button>
+      </div>
+      <div id="mobile-install-hint" class="mobile-install__hint" hidden></div>
+    </div>
+  </div>
+
   <script src="./leaflet.js"></script>
   <script src="./script.js"></script>
 </body>
 </html>
+

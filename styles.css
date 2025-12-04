@@ -982,3 +982,145 @@ tr.selected {
     width: 150px;
   }
 }
+
+
+/* Mobile install bottom sheet */
+.mobile-install {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 100vh;
+  padding: 0 14px 18px;
+  z-index: 1400;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.mobile-install.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.mobile-lock {
+  background: radial-gradient(circle at 20% 20%, #0d1d38, #050a17 55%), #050a17;
+  min-height: 100vh;
+}
+
+.mobile-lock .app-shell {
+  display: none;
+}
+
+.mobile-lock .mobile-install {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  align-items: center;
+}
+
+.mobile-install__panel {
+  width: min(720px, 100%);
+  margin: 0 auto 12px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+}
+
+.mobile-lock .mobile-install__panel {
+  width: min(640px, 92vw);
+  min-height: 320px;
+}
+
+.mobile-install__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.mobile-install__title {
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.mobile-install__subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+.mobile-install__close {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.mobile-install__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.mobile-install__primary,
+.mobile-install__secondary {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.mobile-install__primary {
+  background: linear-gradient(120deg, #22c55e, #38bdf8);
+  color: #041024;
+  border: none;
+}
+
+.mobile-install__secondary {
+  background: rgba(15, 22, 44, 0.85);
+  color: var(--text);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.mobile-install__hint {
+  margin-top: 12px;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text);
+  background: rgba(15, 22, 44, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-left: 4px solid #38bdf8;
+  border-radius: 10px;
+}
+
+.mobile-install__hint[hidden] {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .mobile-install__actions {
+    flex-direction: column;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-install {
+    display: none;
+  }
+}

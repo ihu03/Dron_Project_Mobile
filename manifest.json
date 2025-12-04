@@ -1,7 +1,7 @@
 {
   "name": "Seoul ADS-B Viewer",
   "short_name": "ADS-B Map",
-  "start_url": "/",
+  "start_url": "/mobile.html",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

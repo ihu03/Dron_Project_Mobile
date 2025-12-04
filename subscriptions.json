@@ -1,10 +1,10 @@
 [
   {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/dU3CmpOnN2Y:APA91bHU2jS6ISzbkxDalJlCmC9HSj6ByTJvNPflNUlBpR_0rIoheso9P7hdWXuGVK7OxPESq7achvea5b2NSQhnu2xoOzu3hl_QFjvfjgSpnJCIBKIHFT_Flg0Qv-rKU8rCMMsLwXsN",
+    "endpoint": "https://fcm.googleapis.com/fcm/send/emeB7nfbZpk:APA91bEl_o0R3_4I4HA8f1yfllG4k3lFjp36lWs2LCmzrYD9FHd4rbugZ-d46Nz79j7yffGXAwcpyyrce6wWsrM5kI_3jQh2EmPPH3218cICl7TforYn_K4ZOaP-2LqBMqse5VfWULqL",
     "expirationTime": null,
     "keys": {
-      "p256dh": "BHGiLvt4bS5bCxYuFkhysSbeqVTFykaX-YdhCmy-yjonhB20kRsQlUUqtLjOjXQS3SoCyPEkuSUa70XUMMmZV6M",
-      "auth": "JTTRa3QZuPIyumEyQDdnJQ"
+      "p256dh": "BC4SMgZAz6Gojbe_LzFLAobu5Sf4VqSBipFXl_8Nzvb10oixVc7QJQxHZjpZaInqmn8BHsZcaHlDWzZX-uwX8nQ",
+      "auth": "xABE4qLN5YxHoNS8Y5Ju8g"
     }
   }
 ]

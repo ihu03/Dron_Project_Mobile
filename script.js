@@ -88,6 +88,13 @@ const pushStatusEl = document.getElementById("push-status");
 const pushEnableBtn = document.getElementById("push-enable");
 const pushTestBtn = document.getElementById("push-test");
 const installBtn = document.getElementById("install-btn");
+const mobileInstallSheet = document.getElementById("mobile-install-sheet");
+const mobileInstallDownloadBtn = document.getElementById("mobile-install-download");
+const mobileInstallDismissBtn = document.getElementById("mobile-install-dismiss");
+const mobileInstallCloseBtn = document.getElementById("mobile-install-close");
+const mobileInstallHint = document.getElementById("mobile-install-hint");
+const MOBILE_INSTALL_DISMISS_KEY = "mobileInstallDismissed";
+const MOBILE_UA_REGEX = /(android|iphone|ipad|mobi)/i;
 
 // PWA helpers
 let swRegistration = null;
@@ -219,15 +226,93 @@ async function sendSafetyPush(entries = []) {
   }
 }
 
+function isStandaloneMode() {
+  return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+}
+
+function isMobileEnvironment() {
+  const ua = (navigator.userAgent || "").toLowerCase();
+  const matchesUa = MOBILE_UA_REGEX.test(ua);
+  const isNarrow = window.innerWidth <= 768;
+  return matchesUa && isNarrow;
+}
+
+function setMobileInstallHint(text) {
+  if (!mobileInstallHint) return;
+  if (text) {
+    mobileInstallHint.textContent = text;
+    mobileInstallHint.hidden = false;
+  } else {
+    mobileInstallHint.hidden = true;
+  }
+}
+
+function dismissMobileInstall(permanent = false) {
+  // 모바일 환경에서는 설치 안내만 노출해야 하므로 닫기 동작을 무시
+  if (isMobileEnvironment()) {
+    return;
+  }
+  if (permanent) {
+    try {
+      localStorage.setItem(MOBILE_INSTALL_DISMISS_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }
+  if (mobileInstallSheet) mobileInstallSheet.classList.remove("is-visible");
+}
+
+function shouldShowMobileInstallPrompt() {
+  return Boolean(mobileInstallSheet) && isMobileEnvironment() && !isStandaloneMode();
+}
+
+function updateMobileInstallVisibility(forceHide = false) {
+  if (!mobileInstallSheet) return;
+  const isMobile = isMobileEnvironment();
+  const shouldShow = !forceHide && isMobile;
+
+  if (!shouldShow) {
+    document.body.classList.remove("mobile-lock");
+    mobileInstallSheet.classList.remove("is-visible");
+    return;
+  }
+
+  document.body.classList.add("mobile-lock");
+  mobileInstallSheet.classList.add("is-visible");
+}
+
+async function promptInstallAndShortcut() {
+  registerServiceWorker();
+  setMobileInstallHint("");
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    let choice = null;
+    try {
+      choice = await deferredInstallPrompt.userChoice;
+    } catch (e) {
+      console.warn("install prompt failed", e);
+    }
+    deferredInstallPrompt = null;
+    installBtn?.classList.add("hidden");
+    if (choice?.outcome === "accepted") {
+      setMobileInstallHint("설치가 완료되면 홈 화면에 바로가기 아이콘이 자동으로 생성됩니다.");
+      return;
+    }
+  }
+  setMobileInstallHint("브라우저 메뉴의 '홈 화면에 추가'를 눌러 홈 화면 바로가기를 만들어주세요.");
+}
+
 function initPwaUi() {
   registerServiceWorker();
 
+  const refreshMobilePrompt = () => updateMobileInstallVisibility();
+
   pushEnableBtn?.addEventListener("click", () => {
-    setPushStatus("권한 확인 중...", "muted");
+    setPushStatus("권한 확인 중..", "muted");
     ensurePushActive();
   });
   pushTestBtn?.addEventListener("click", () => {
-    setPushStatus("테스트 전송 중...", "muted");
+    setPushStatus("테스트 알림 준비중..", "muted");
     sendTestPush();
   });
 
@@ -235,19 +320,29 @@ function initPwaUi() {
     e.preventDefault();
     deferredInstallPrompt = e;
     installBtn?.classList.remove("hidden");
+    refreshMobilePrompt();
   });
 
-  installBtn?.addEventListener("click", async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    installBtn.classList.add("hidden");
+  installBtn?.addEventListener("click", () => {
+    promptInstallAndShortcut();
   });
 
   window.addEventListener("appinstalled", () => {
     installBtn?.classList.add("hidden");
+    dismissMobileInstall(true);
+    setMobileInstallHint("홈 화면에 바로가기 아이콘이 추가되었습니다.");
   });
+
+  mobileInstallDownloadBtn?.addEventListener("click", () => {
+    promptInstallAndShortcut();
+  });
+
+  const handleDismiss = () => dismissMobileInstall(true);
+  mobileInstallDismissBtn?.addEventListener("click", handleDismiss);
+  mobileInstallCloseBtn?.addEventListener("click", handleDismiss);
+
+  window.addEventListener("resize", refreshMobilePrompt);
+  refreshMobilePrompt();
 }
 
 async function notifySafety(entries = []) {
