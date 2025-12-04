@@ -2,15 +2,265 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="refresh" content="0; url=/" />
-  <title>ADS-B Mobile</title>
-  <script>
-    // Fallback in case meta refresh is blocked
-    window.location.replace("/");
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Seoul ADS-B Mobile</title>
+  <link rel="stylesheet" href="./leaflet.css" />
+  <style>
+    :root {
+      --bg: #0b1224;
+      --panel: rgba(9, 14, 28, 0.75);
+      --text: #e9f1ff;
+      --muted: #9cb2d5;
+      --accent: #38bdf8;
+      --warn: #f59e0b;
+      --danger: #f43f5e;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    #map {
+      position: fixed;
+      inset: 0;
+      filter: brightness(0.4);
+      background: #050a17;
+    }
+
+    .hud {
+      position: fixed;
+      top: 6px;
+      left: 8px;
+      right: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: var(--panel);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13px;
+      pointer-events: auto;
+    }
+
+    .pill .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.2);
+    }
+
+    .pill.warn .dot { background: var(--warn); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0.25); }
+    .pill.danger .dot { background: var(--danger); box-shadow: 0 0 0 6px rgba(244, 63, 94, 0.25); }
+
+    .pill.muted {
+      color: var(--muted);
+    }
+
+    .panel {
+      position: fixed;
+      bottom: 16px;
+      left: 12px;
+      right: 12px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: var(--panel);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .panel strong { color: var(--text); }
+    .panel span { color: var(--muted); }
+
+    .panel .stat {
+      display: grid;
+      gap: 4px;
+      min-width: 120px;
+    }
+
+    .error {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(244, 63, 94, 0.2);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #ffdce5;
+      font-weight: 700;
+      display: none;
+      backdrop-filter: blur(6px);
+    }
+
+    @media (max-width: 540px) {
+      .panel {
+        gap: 8px;
+        font-size: 12px;
+      }
+      .pill {
+        font-size: 12px;
+      }
+    }
+  </style>
 </head>
 <body>
-  이동 중입니다...
+  <div id="map"></div>
+  <div class="hud">
+    <div class="pill" id="status-pill">
+      <span class="dot"></span>
+      <span id="status-text">기체 불러오는 중...</span>
+    </div>
+    <div class="pill muted" id="last-updated">-</div>
+  </div>
+  <div class="error" id="error-box"></div>
+  <div class="panel">
+    <div class="stat"><span>총 기체 수</span><strong id="count-total">-</strong></div>
+    <div class="stat"><span>좌표 보유</span><strong id="count-pos">-</strong></div>
+    <div class="stat"><span>최근 갱신</span><strong id="ping-ms">-</strong></div>
+  </div>
+
+  <script src="./leaflet.js"></script>
+  <script>
+    const map = L.map("map", { worldCopyJump: true, zoomControl: false }).setView([37.5665, 126.9780], 8);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 18,
+      attribution: "(c) OpenStreetMap contributors",
+    }).addTo(map);
+
+    const statusPill = document.getElementById("status-pill");
+    const statusText = document.getElementById("status-text");
+    const lastUpdated = document.getElementById("last-updated");
+    const errorBox = document.getElementById("error-box");
+    const countTotal = document.getElementById("count-total");
+    const countPos = document.getElementById("count-pos");
+    const pingMs = document.getElementById("ping-ms");
+
+    const markers = new Map(); // hex -> { marker, lastSeen }
+    const STALE_MS = 45000;
+    const POLL_MS = 2000;
+
+    function formatTime() {
+      const now = new Date();
+      return now.toLocaleTimeString("ko-KR", { hour12: false });
+    }
+
+    function setStatus(text, tone = "ok") {
+      statusText.textContent = text;
+      statusPill.classList.remove("warn", "danger");
+      if (tone === "warn") statusPill.classList.add("warn");
+      if (tone === "danger") statusPill.classList.add("danger");
+    }
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = "block";
+      setTimeout(() => (errorBox.style.display = "none"), 4000);
+    }
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function updateMarkers(list) {
+      const now = Date.now();
+      const seen = new Set();
+
+      list.forEach((ac) => {
+        if (!Number.isFinite(ac.lat) || !Number.isFinite(ac.lon)) return;
+        const hex = ac.hex || ac.icao || ac.id || Math.random().toString(16).slice(2, 8);
+        const pos = [ac.lat, ac.lon];
+        seen.add(hex);
+
+        const color = ac.alt_baro > 15000 ? "#a855f7" : ac.alt_baro > 8000 ? "#22c55e" : "#3b82f6";
+        if (!markers.has(hex)) {
+          const marker = L.circleMarker(pos, {
+            radius: 6,
+            color,
+            weight: 2,
+            opacity: 0.9,
+            fillColor: color,
+            fillOpacity: 0.7,
+          }).addTo(map);
+          marker.bindTooltip(`${ac.flight || ac.hex || "Unknown"}`, { direction: "top", offset: [0, -6] });
+          markers.set(hex, { marker, lastSeen: now });
+        } else {
+          const entry = markers.get(hex);
+          entry.marker.setLatLng(pos);
+          entry.marker.setStyle({ color, fillColor: color });
+          entry.lastSeen = now;
+        }
+      });
+
+      // Remove stale markers
+      markers.forEach((entry, hex) => {
+        if (!seen.has(hex) && now - entry.lastSeen > STALE_MS) {
+          map.removeLayer(entry.marker);
+          markers.delete(hex);
+        }
+      });
+    }
+
+    async function poll() {
+      const start = performance.now();
+      try {
+        const res = await fetch("/api/aircraft", { cache: "no-store" });
+        const elapsed = Math.max(1, Math.round(performance.now() - start));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const list = Array.isArray(data?.aircraft) ? data.aircraft : Array.isArray(data) ? data : [];
+        const withPos = list.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
+
+        countTotal.textContent = list.length.toLocaleString("ko-KR");
+        countPos.textContent = withPos.length.toLocaleString("ko-KR");
+        pingMs.textContent = `${elapsed} ms`;
+        lastUpdated.textContent = `업데이트: ${formatTime()}`;
+        setStatus(withPos.length ? `기체 ${withPos.length.toLocaleString("ko-KR")}대 위치 표시 중` : "표시할 기체 없음", withPos.length ? "ok" : "warn");
+
+        updateMarkers(withPos);
+      } catch (e) {
+        showError("데이터 불러오기 실패");
+        setStatus("데이터 불러오기 실패", "danger");
+      } finally {
+        setTimeout(poll, POLL_MS);
+      }
+    }
+
+    poll();
+  </script>
 </body>
 </html>

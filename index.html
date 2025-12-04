@@ -184,17 +184,26 @@
   <div id="mobile-install-sheet" class="mobile-install" aria-live="polite">
     <div class="mobile-install__panel">
       <div class="mobile-install__header">
-        <div>
-          <div class="mobile-install__title">모바일 이 화면을 앱으로 보기</div>
-          <div class="mobile-install__subtitle">다운로드하면 홈 화면에 바로가기 아이콘이 생성돼요.</div>
+        <div class="mobile-install__eyebrow">Seoul ADS-B Viewer</div>
+      </div>
+      <div class="mobile-install__body">
+        <div class="mobile-install__intro">
+          <div class="mobile-install__icon" aria-hidden="true">📡</div>
+          <div>
+            <div class="mobile-install__title">모바일에서 바로 보기</div>
+            <div class="mobile-install__subtitle">홈 화면에 설치해두면 한 번 탭으로 실시간 항공정보를 열 수 있습니다.</div>
+          </div>
         </div>
-        <button id="mobile-install-close" class="mobile-install__close" type="button" aria-label="닫기">×</button>
+        <ul class="mobile-install__steps">
+          <li>“다운로드/설치”를 눌러 앱처럼 추가</li>
+          <li>혹은 브라우저 메뉴 → “홈 화면에 추가” 선택</li>
+          <li>설치 후 아이콘을 누르면 `/mobile.html`에서 시작</li>
+        </ul>
+        <div class="mobile-install__actions">
+          <button id="mobile-install-download" type="button" class="mobile-install__primary">다운로드/설치</button>
+        </div>
+        <div id="mobile-install-hint" class="mobile-install__hint" hidden></div>
       </div>
-      <div class="mobile-install__actions">
-        <button id="mobile-install-download" type="button" class="mobile-install__primary">다운로드/설치</button>
-        <button id="mobile-install-dismiss" type="button" class="mobile-install__secondary">나중에</button>
-      </div>
-      <div id="mobile-install-hint" class="mobile-install__hint" hidden></div>
     </div>
   </div>
 
