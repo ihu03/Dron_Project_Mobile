@@ -593,7 +593,8 @@ function updateMap(aircraft, fakeSet = new Set()) {
 
     const base = pickColor(ac);
     const color = getAlertColor(ac) || base;
-    const icon = createIcon(ac, color, hex === selectedHex);
+    const shape = fakeSet.has(hex) ? "drone" : "plane";
+    const icon = createIcon(ac, color, hex === selectedHex, shape);
 
     if (!markers.has(hex)) {
       const marker = L.marker(pos, { icon });
@@ -1046,7 +1047,7 @@ function addOrUpdateFakeMarker(plane) {
   const pos = [plane.lat, plane.lon];
   const base = pickColor(plane);
   const color = getAlertColor(plane) || base;
-  const icon = createIcon(plane, color, hex === selectedHex);
+  const icon = createIcon(plane, color, hex === selectedHex, "drone");
   if (!markers.has(hex)) {
     const marker = L.marker(pos, { icon, draggable: true });
     marker.addTo(map);
