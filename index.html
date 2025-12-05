@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +10,7 @@
   <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0b1224" />
 </head>
+
 <body>
   <div class="app-shell">
     <header class="topbar">
@@ -44,6 +46,10 @@
             <button id="detail-close" aria-label="닫기" type="button">×</button>
           </div>
           <div class="detail-body">
+            <div class="detail-photo" id="detail-photo" hidden>
+              <img id="detail-image" src="" alt="Plane photo" loading="lazy" />
+              <div class="detail-photo__hint">Source: planespotters.net</div>
+            </div>
             <div class="detail-row">
               <span>위치</span><span id="detail-pos">-</span>
             </div>
@@ -63,10 +69,6 @@
               <span>등록국가</span><span id="detail-country">-</span>
             </div>
             <button id="detail-delete-fake" class="ghost-btn" type="button" hidden>기체 삭제</button>
-            <div class="detail-image-wrap" hidden>
-              <img id="detail-image" alt="기체 이미지" hidden />
-              <div id="detail-image-text" class="detail-image-text" hidden>기체 이미지를 불러올 수 없음</div>
-            </div>
             <div class="detail-note" id="detail-note">ADS-B Live</div>
           </div>
         </div>
@@ -102,7 +104,8 @@
             <div class="input-row">
               <label for="radar-radius-input">
                 레이더 반경 (km)
-                <span class="value"><input id="radar-radius-value" type="number" min="10" max="400" step="1" value="120" inputmode="numeric" /></span>
+                <span class="value"><input id="radar-radius-value" type="number" min="10" max="400" step="1" value="120"
+                    inputmode="numeric" /></span>
               </label>
               <div class="single-range">
                 <div class="range-rail"></div>
@@ -113,7 +116,8 @@
             <div class="input-row">
               <label for="safety-radius-input">
                 안전 반경 (km)
-                <span class="value"><input id="safety-radius-value" type="number" min="1" max="100" step="1" value="5" inputmode="numeric" /></span>
+                <span class="value"><input id="safety-radius-value" type="number" min="1" max="100" step="1" value="5"
+                    inputmode="numeric" /></span>
               </label>
               <div class="single-range">
                 <div class="range-rail"></div>
@@ -147,8 +151,9 @@
                 <input id="eta-max-input" type="range" min="0" max="10" step="1" value="10" />
               </div>
             </div>
-            <div class="stat-row"><span>레이더 내 기체</span><span id="radar-count">0</span></div>
-            <div class="stat-row"><span>최소 접근 ETA</span><span id="eta">-</span></div>
+            <div class="stat-row stat-row--approach"><span>근접 위험 순위 (내 기체와의 거리)</span>
+              <span id="radar-count" class="hidden-counter" aria-hidden="true">0</span>
+            </div>
             <div class="warn" id="warn-msg">감시 중인 가상 기체가 없습니다.</div>
             <div class="list" id="approach-list"></div>
           </div>
@@ -209,5 +214,5 @@
   <script src="./leaflet.js"></script>
   <script src="./script.js"></script>
 </body>
-</html>
 
+</html>

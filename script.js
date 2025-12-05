@@ -39,7 +39,6 @@ const clearFilter = document.getElementById("clearFilter");
 const statsEl = document.getElementById("stats");
 const pingEl = document.getElementById("ping");
 const radarCountEl = document.getElementById("radar-count");
-const etaEl = document.getElementById("eta");
 const warnEl = document.getElementById("warn-msg");
 const radarRadiusInput = document.getElementById("radar-radius-input");
 const safetyRadiusInput = document.getElementById("safety-radius-input");
@@ -70,18 +69,19 @@ const detailSquawk = document.getElementById("detail-squawk");
 const detailCountry = document.getElementById("detail-country");
 const detailNote = document.getElementById("detail-note");
 const detailDeleteFake = document.getElementById("detail-delete-fake");
-const detailImageWrap = document.querySelector(".detail-image-wrap");
+const detailPhoto = document.getElementById("detail-photo");
 const detailImage = document.getElementById("detail-image");
-const detailImageText = document.getElementById("detail-image-text");
-const detailImageCache = new Map(); // hex -> { status: "success"|"fail"|"loading", url?: string }
-let detailImageObjectUrl = null;
-let detailImageReqId = 0;
 const mapBrightnessInput = document.getElementById("map-brightness");
 const mapBrightnessValue = document.getElementById("map-brightness-value");
+const etaStatRow = document.querySelector(".stat-row span#eta")?.parentElement || null;
 let isFakeFormOpen = false;
+let detailImageHex = null;
 let lastSafetyAlertAt = 0;
 const SAFETY_ALERT_COOLDOWN_MS = 10000; // 현재는 미사용(재알림 막기용)
 let alertedSafetyHexes = new Set();
+if (warnEl) warnEl.style.display = "none";
+if (etaStatRow) etaStatRow.style.display = "none";
+if (etaStatRow) etaStatRow.style.display = "none";
 
 // PWA/Push DOM
 const pushStatusEl = document.getElementById("push-status");
@@ -384,8 +384,10 @@ async function notifySafety(entries = []) {
 }
 
 function altitudeMeters(ac) {
-  const ft = Number.isFinite(ac?.alt_baro) ? ac.alt_baro : null;
-  return ft === null ? null : ft * FT_TO_M;
+  const raw = ac?.alt_baro ?? ac?.alt_geom ?? ac?.altitude ?? null;
+  const ft = Number(raw);
+  if (!Number.isFinite(ft)) return null;
+  return ft * FT_TO_M;
 }
 
 function hexToRgb(hex) {
@@ -420,7 +422,7 @@ function isWithinCylinder(target, other, radiusKm, options = {}) {
 
   const altT = altitudeMeters(target);
   const altO = altitudeMeters(other);
-  // 고도 정보가 없으면 수평 반경만 판정
+  // ?? ??? ??? ?? ????? ?? (?? ?? ??)
   if (!Number.isFinite(altT) || !Number.isFinite(altO)) {
     return distKm <= radiusKm;
   }
@@ -488,6 +490,12 @@ function formatAltitudeKilometers(ac, maxFractionDigits = 1) {
 
 function normalizeHex(hex) {
   return (hex || "").trim().toUpperCase();
+}
+
+function resolveActualHex(hex) {
+  const target = normalizeHex(hex);
+  const match = latestAircraft.find((p) => normalizeHex(p.hex) === target);
+  return match?.hex || hex;
 }
 
 function createIcon(ac, color, isSelected) {
@@ -702,12 +710,35 @@ function formatNumber(val, digits = 1) {
   return Number.isFinite(val) ? val.toFixed(digits) : "-";
 }
 
+function updateDetailImage(ac) {
+  if (!detailPhoto || !detailImage) return;
+  if (!ac || !ac.hex) {
+    detailImageHex = null;
+    detailImage.removeAttribute("src");
+    detailPhoto.hidden = true;
+    detailPhoto.classList.remove("loading");
+    return;
+  }
+  const hex = normalizeHex(ac.hex);
+  const shouldReload = detailImageHex !== hex || !detailImage.src;
+  detailImageHex = hex;
+  detailPhoto.hidden = false;
+  if (shouldReload) {
+    detailPhoto.classList.add("loading");
+    detailImage.onload = () => detailPhoto.classList.remove("loading");
+    detailImage.onerror = () => detailPhoto.classList.remove("loading");
+    detailImage.src = `/api/plane-image?hex=${encodeURIComponent(hex)}`;
+  }
+  const call = formatCallsign(ac);
+  detailImage.alt = call ? `${call} (${hex})` : `${hex} image`;
+}
+
 function setDetail(ac) {
   if (!detailPanel) return;
   if (!ac) {
     detailPanel.hidden = true;
+    updateDetailImage(null);
     if (detailDeleteFake) detailDeleteFake.hidden = true;
-    if (detailImageWrap) detailImageWrap.hidden = true;
     return;
   }
   detailPanel.hidden = false;
@@ -719,107 +750,21 @@ function setDetail(ac) {
   detailAlt.textContent = `${formatAltitudeKilometers(ac)} km`;
   const gs = Number.isFinite(ac.gs) ? ac.gs : null;
   detailSpeed.textContent = gs !== null ? `${gs.toFixed(1)} kt` : "-";
-  detailTrack.textContent = Number.isFinite(ac.track) ? `${ac.track.toFixed(1)}°` : "-";
+  detailTrack.textContent = Number.isFinite(ac.track) ? `${ac.track.toFixed(1)}\u00b0` : "-";
   detailSquawk.textContent = ac.squawk || "-";
   detailCountry.textContent = ac.r ? ac.r : "-";
   detailNote.textContent = ac.category ? `Category: ${ac.category}` : "ADS-B Live";
+  updateDetailImage(ac);
+
   const isFake = fakePlanes.some((f) => f.hex === ac.hex);
-  if (isFake) {
-    if (detailImageWrap) detailImageWrap.hidden = true;
-  } else if (detailImageWrap) {
-    if (detailImage) {
-      detailImage.hidden = true;
-      detailImage.style.display = "none";
-      detailImage.src = "";
-    }
-    if (detailImageText) {
-      detailImageText.hidden = true;
-      detailImageText.style.display = "none";
-      detailImageText.textContent = "기체 이미지를 불러올 수 없음";
-    }
-
-    const showText = (msg) => {
-      if (detailImage) {
-        detailImage.hidden = true;
-        detailImage.style.display = "none";
-        detailImage.src = "";
-      }
-      if (detailImageText) {
-        detailImageText.textContent = msg;
-        detailImageText.hidden = false;
-        detailImageText.style.display = "flex";
-      }
-    };
-    const hideText = () => {
-      if (detailImageText) {
-        detailImageText.hidden = true;
-        detailImageText.style.display = "none";
-      }
-    };
-    const showImage = (url) => {
-      hideText();
-      if (!detailImage) return;
-      if (detailImage.src !== url) detailImage.src = url;
-      detailImage.hidden = false;
-      detailImage.style.display = "block";
-    };
-
-    const call = formatCallsign(ac) || ac.hex || "aircraft";
-    const hex = (ac.hex || "").trim();
-    const cacheBust = Date.now();
-    const proxyUrl = hex ? `/api/plane-image?hex=${encodeURIComponent(hex)}&t=${cacheBust}` : "";
-    const cached = hex ? detailImageCache.get(hex) : null;
-    const failMsg = "기체 이미지를 불러올 수 없음";
-
-    if (detailImage) {
-      detailImage.hidden = true;
-      detailImage.alt = `${call} 기체 이미지`;
-
-      if (cached?.status === "success" && cached.url) {
-        showImage(cached.url);
-      } else if (cached?.status === "fail") {
-        showText(failMsg);
-      } else if (proxyUrl && hex) {
-        // 새 요청 식별자 생성
-        const reqId = ++detailImageReqId;
-        detailImageCache.set(hex, { status: "loading" });
-        fetch(proxyUrl, { cache: "no-store" })
-          .then((res) => {
-            if (reqId !== detailImageReqId) return null;
-            if (!res.ok) throw new Error("image fetch failed");
-            const type = res.headers.get("content-type") || "";
-            if (/svg/i.test(type) || /xml/i.test(type)) throw new Error("placeholder svg");
-            return res.blob();
-          })
-          .then((blob) => {
-            if (!blob || reqId !== detailImageReqId) return;
-            const prev = detailImageCache.get(hex);
-            if (prev?.url) URL.revokeObjectURL(prev.url);
-            const url = URL.createObjectURL(blob);
-            detailImageCache.set(hex, { status: "success", url });
-            showImage(url);
-          })
-          .catch(() => {
-            if (reqId !== detailImageReqId) return;
-            const prev = detailImageCache.get(hex);
-            if (prev?.url) URL.revokeObjectURL(prev.url);
-            detailImageCache.set(hex, { status: "fail" });
-            showText(failMsg);
-          });
-      } else {
-        showText(failMsg);
-      }
-    }
-    detailImageWrap.hidden = false;
-  }
   if (detailDeleteFake) {
     detailDeleteFake.hidden = !isFake;
     detailDeleteFake.dataset.hex = ac.hex || "";
   }
 }
-
 function closeDetail() {
   detailPanel.hidden = true;
+  updateDetailImage(null);
   selectedHex = null;
   suppressAutoSelect = true;
   refreshSelectedIcons();
@@ -827,7 +772,8 @@ function closeDetail() {
 }
 
 function openDetailForHex(hex) {
-  const ac = latestAircraft.find((p) => p.hex === hex);
+  const targetHex = normalizeHex(hex);
+  const ac = latestAircraft.find((p) => normalizeHex(p.hex) === targetHex);
   setDetail(ac || null);
 }
 
@@ -1214,7 +1160,6 @@ function updateFakeStats(aircraft, options = {}) {
   approachListEl.innerHTML = "";
   if (!fakePlanes.length) {
     radarCountEl.textContent = "0";
-    etaEl.textContent = "-";
     warnEl.textContent = "가짜 기체가 없습니다.";
     return;
   }
@@ -1244,7 +1189,7 @@ function updateFakeStats(aircraft, options = {}) {
     if (inSafety) {
       immediateDanger = true;
       safetyHits.push(hex);
-      safetyDetails.push({ hex, call: formatCallsign(p), dist: distKm });
+      safetyDetails.push({ hex, rawHex: p.hex, call: formatCallsign(p), dist: distKm, lat: p.lat, lon: p.lon });
     } else if (p.gs) {
       const mps = p.gs * 0.514444;
       if (mps > 1) {
@@ -1257,42 +1202,42 @@ function updateFakeStats(aircraft, options = {}) {
     }
   });
 
-  approaching
-    .sort((a, b) => a.etaMin - b.etaMin)
-    .forEach(({ call, etaMin, hex, lat, lon }) => {
-      const li = document.createElement("div");
-      li.textContent = `${call} : ${etaMin.toFixed(1)} 분`;
-      if (hex) {
-        li.dataset.hex = hex;
-        li.classList.add("approach-item");
-        li.addEventListener("click", () => {
-          suppressAutoSelect = true;
-          selectedHex = hex;
-          refreshSelectedIcons();
-          renderTable(latestAircraft);
-          openDetailForHex(hex);
-          const entry = markers.get(hex);
-          if (entry) {
-            map.flyTo(entry.marker.getLatLng(), map.getZoom());
-          } else if (Number.isFinite(lat) && Number.isFinite(lon)) {
-            map.flyTo([lat, lon], map.getZoom());
-          }
-        });
-      }
-      approachListEl.appendChild(li);
-    });
+  const safetyList = safetyDetails
+    .filter((d) => Number.isFinite(d.dist))
+    .sort((a, b) => a.dist - b.dist);
+
+  safetyList.forEach(({ call, hex, rawHex, dist, lat, lon }) => {
+    const label = call || hex || "unknown";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = `${label} : ${dist.toFixed(1)} km`;
+    const keyHex = rawHex || hex;
+    if (keyHex) {
+      btn.dataset.hex = keyHex;
+      btn.classList.add("approach-item");
+      btn.addEventListener("click", () => {
+        const actualHex = resolveActualHex(keyHex);
+        suppressAutoSelect = true;
+        selectedHex = actualHex;
+        refreshSelectedIcons();
+        renderTable(latestAircraft);
+        openDetailForHex(actualHex);
+        const entry = markers.get(actualHex);
+        if (entry) {
+          map.flyTo(entry.marker.getLatLng(), map.getZoom());
+        } else if (Number.isFinite(lat) && Number.isFinite(lon)) {
+          map.flyTo([lat, lon], map.getZoom());
+        }
+      });
+    }
+    approachListEl.appendChild(btn);
+  });
 
   radarCountEl.textContent = radarCount.toString();
-  etaEl.textContent = minEta !== null ? `${minEta.toFixed(1)} 분` : "-";
 
-  if (immediateDanger) {
-    warnEl.textContent = "최소 안전 반경 진입!";
-    warnEl.classList.add("warn-active");
-  } else if (minEta !== null) {
-    warnEl.textContent = `${minEta.toFixed(1)}분 후 안전 반경 도달 예상`;
-    warnEl.classList.add("warn-soon");
-  } else {
-    warnEl.textContent = "접근 없음";
+  if (warnEl) {
+    warnEl.textContent = "근접 위험 순위";
+    warnEl.classList.remove("warn-active", "warn-soon");
   }
 
   const hadNoSafety = lastSafetyHexes.size === 0;
