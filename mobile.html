@@ -74,6 +74,8 @@
       font-weight: 700;
       font-size: 13px;
       pointer-events: auto;
+      border: none;
+      cursor: default;
     }
 
     .pill .dot {
@@ -89,6 +91,19 @@
 
     .pill.muted {
       color: var(--muted);
+    }
+
+    .pill.action {
+      cursor: pointer;
+      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #d7ecff;
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .pill.action:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
     .panel {
@@ -160,7 +175,7 @@
       <span class="dot"></span>
       <span id="status-text">기체 불러오는 중...</span>
     </div>
-    <div class="pill muted" id="last-updated">-</div>
+    <button class="pill action" id="test-alert-btn" type="button">테스트 알림</button>
   </div>
   <div class="error" id="error-box"></div>
   <div class="panel">
@@ -180,7 +195,7 @@
 
     const statusPill = document.getElementById("status-pill");
     const statusText = document.getElementById("status-text");
-    const lastUpdated = document.getElementById("last-updated");
+    const testAlertBtn = document.getElementById("test-alert-btn");
     const errorBox = document.getElementById("error-box");
     const countTotal = document.getElementById("count-total");
     const countPos = document.getElementById("count-pos");
@@ -189,6 +204,8 @@
     const markers = new Map(); // hex -> { marker, lastSeen }
     const STALE_MS = 45000;
     const POLL_MS = 2000;
+    const VAPID_PUBLIC_KEY_ENDPOINT = "/vapid-public-key";
+    let swRegistration = null;
 
     const FT_TO_M = 0.3048;
 
@@ -330,7 +347,6 @@
         countTotal.textContent = list.length.toLocaleString("ko-KR");
         countPos.textContent = withPos.length.toLocaleString("ko-KR");
         pingMs.textContent = `${elapsed} ms`;
-        lastUpdated.textContent = `업데이트: ${formatTime()}`;
         setStatus(withPos.length ? `기체 ${withPos.length.toLocaleString("ko-KR")}대 위치 표시 중` : "표시할 기체 없음", withPos.length ? "ok" : "warn");
 
         updateMarkers(withPos);
@@ -343,6 +359,92 @@
     }
 
     poll();
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const rawData = atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; i++) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    async function registerServiceWorker() {
+      if (!("serviceWorker" in navigator)) {
+        showError("서비스워커 미지원");
+        return null;
+      }
+      if (swRegistration) return swRegistration;
+      try {
+        swRegistration = await navigator.serviceWorker.register("/sw.js");
+        swRegistration = await navigator.serviceWorker.ready;
+        return swRegistration;
+      } catch (e) {
+        showError("서비스워커 등록 실패");
+        return null;
+      }
+    }
+
+    async function ensurePushActive() {
+      const reg = await registerServiceWorker();
+      if (!reg) return false;
+      if (!("Notification" in window) || !("PushManager" in window)) {
+        showError("푸시 미지원 환경");
+        return false;
+      }
+      const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
+      if (permission !== "granted") {
+        showError("알림 권한 거부됨");
+        return false;
+      }
+
+      let subscription = await reg.pushManager.getSubscription();
+      try {
+        if (!subscription) {
+          const res = await fetch(VAPID_PUBLIC_KEY_ENDPOINT, { cache: "no-store" });
+          if (!res.ok) throw new Error("VAPID 키 불러오기 실패");
+          const vapidKey = (await res.text()).trim();
+          const appServerKey = urlBase64ToUint8Array(vapidKey);
+          subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appServerKey });
+        }
+        await fetch("/api/subscriptions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subscription }),
+        });
+        return true;
+      } catch (e) {
+        showError("푸시 활성화 실패");
+        return false;
+      }
+    }
+
+    async function sendTestAlert() {
+      if (testAlertBtn) testAlertBtn.disabled = true;
+      const ready = await ensurePushActive();
+      if (!ready) {
+        if (testAlertBtn) testAlertBtn.disabled = false;
+        return;
+      }
+      try {
+        const res = await fetch("/api/push/test", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        setStatus("테스트 알림 전송 완료", "ok");
+      } catch (e) {
+        showError("테스트 알림 전송 실패");
+        setStatus("테스트 알림 전송 실패", "danger");
+      } finally {
+        if (testAlertBtn) testAlertBtn.disabled = false;
+      }
+    }
+
+    testAlertBtn?.addEventListener("click", sendTestAlert);
   </script>
 </body>
 </html>

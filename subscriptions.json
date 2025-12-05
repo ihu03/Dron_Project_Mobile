@@ -6,5 +6,20 @@
       "p256dh": "BC4SMgZAz6Gojbe_LzFLAobu5Sf4VqSBipFXl_8Nzvb10oixVc7QJQxHZjpZaInqmn8BHsZcaHlDWzZX-uwX8nQ",
       "auth": "xABE4qLN5YxHoNS8Y5Ju8g"
     }
+  },
+  {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/eWLb_EIRIjk:APA91bFQtvDnsIdCnlAq1APOn14Bg2vrTLZewFR636aW9pYRg9BH34MKn4m596O9KqFSYgOjsCdEc5COippZtMzZ5X-QjIxGKnTg7J5t_ZFZwaaFESGlFcPeQ3BJ0zbbP7Lnb45ZQb8L",
+    "expirationTime": null,
+    "keys": {
+      "p256dh": "BKvb8nYfS6uNnjzhQYEBKi3aTQwRy4x_OpzDma7462LlDk20HYDUwpQaIdvIaVw017K58jRs1aL-IQ9C-JgkmXA",
+      "auth": "kd53BFO_oytW2pWXMqzVyw"
+    }
+  },
+  {
+    "endpoint": "https://web.push.apple.com/QKiJKBrtBgh2A_N1IXeI_3k21cp9l-UaSKHVipewi9yu_BljknqLD2T226A7c6bIzzV1nW90BnOamKvlI2bSPT_THGqBgXVtoWuJIFmW6oTgI0vfVz7Fmn74Z0qbZ3J89rwWP_-H39lMoXNs4xRx0c6pbbRKyIod4OT1M9NO0dc",
+    "keys": {
+      "p256dh": "BA8W6wA_697CNv6aPtjMyyfFFhkl2uRAS8ca-YMVgyEYiGIdIs-Ufp8Tlc3kHungy1fJXMUd32RylVQ1aJVsLV8",
+      "auth": "p6Co6vZsNDdfUfBD90ngBw"
+    }
   }
 ]
