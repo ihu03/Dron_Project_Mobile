@@ -553,6 +553,10 @@ tr.selected {
   margin-bottom: 2px;
 }
 
+.eta-controls {
+  display: none !important;
+}
+
 .number-field {
   display: flex;
   align-items: center;

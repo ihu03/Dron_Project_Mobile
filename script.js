@@ -390,6 +390,11 @@ function altitudeMeters(ac) {
   return ft * FT_TO_M;
 }
 
+function altitudeKilometers(ac) {
+  const meters = altitudeMeters(ac);
+  return Number.isFinite(meters) ? meters / 1000 : null;
+}
+
 function hexToRgb(hex) {
   const v = hex.replace("#", "");
   return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
@@ -420,14 +425,15 @@ function isWithinCylinder(target, other, radiusKm, options = {}) {
   const distKm = haversineKm(target.lat, target.lon, other.lat, other.lon);
   if (ignoreAltitude) return distKm <= radiusKm;
 
-  const altT = altitudeMeters(target);
   const altO = altitudeMeters(other);
-  // ?? ??? ??? ?? ????? ?? (?? ?? ??)
-  if (!Number.isFinite(altT) || !Number.isFinite(altO)) {
-    return distKm <= radiusKm;
-  }
-  const altDiff = Math.abs(altT - altO);
-  return distKm <= radiusKm && altDiff >= altitudeToleranceMinM && altDiff <= altitudeToleranceMaxM;
+  const withinRange = distKm <= radiusKm;
+  if (!withinRange) return false;
+
+  // 고도가 없으면 수평 반경만으로 통과 처리
+  if (!Number.isFinite(altO)) return true;
+
+  // 슬라이더가 절대 고도(km) 범위를 의미하므로 절대 고도만 확인
+  return altO >= altitudeToleranceMinM && altO <= altitudeToleranceMaxM;
 }
 
 // 고도별 색상: 저고도 진/밝은 초록, 중고도 진/밝은 블루, 고고도 진/밝은 보라
@@ -480,9 +486,8 @@ function setMapBrightness(value) {
 }
 
 function formatAltitudeKilometers(ac, maxFractionDigits = 1) {
-  const altM = altitudeMeters(ac);
-  if (altM === null) return "-";
-  const km = altM / 1000;
+  const km = altitudeKilometers(ac);
+  if (km === null) return "-";
   return Number.isFinite(km)
     ? km.toLocaleString("en-US", { maximumFractionDigits: maxFractionDigits })
     : "-";

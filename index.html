@@ -72,7 +72,7 @@
             <div class="detail-note" id="detail-note">ADS-B Live</div>
           </div>
         </div>
-        <div class="map-brightness-control" aria-label="지도 밝기 조절">
+        <div class="map-brightness-control"" aria-label="지도 밝기 조절">
           <div class="brightness-label">
             <span>지도 밝기</span>
             <span id="map-brightness-value">70%</span>
@@ -83,17 +83,17 @@
       <aside class="sidebar">
         <div class="sidebar-content">
           <div class="controls">
-            <input id="search" type="text" placeholder="Filter by callsign or hex" />
-            <button id="clearFilter" type="button">Clear</button>
+            <input id="search" type="text" placeholder="콜사인 또는 HEX로 검색" />
+            <button id="clearFilter" type="button">지우기</button>
           </div>
           <div class="table-wrap">
             <table>
               <thead>
                 <tr>
-                  <th>Callsign</th>
-                  <th>Lat</th>
-                  <th>Lon</th>
-                  <th>Alt (km)</th>
+                  <th>콜사인</th>
+                  <th>위도</th>
+                  <th>경도</th>
+                  <th>고도 (km)</th>
                 </tr>
               </thead>
               <tbody id="table-body"></tbody>
@@ -138,7 +138,7 @@
                 <input id="alt-range-input" type="range" min="0" max="6" step="0.1" value="6" />
               </div>
             </div>
-            <div class="input-row double">
+            <div class="input-row double eta-controls">
               <label>
                 ETA 범위(분)
                 <span class="value">

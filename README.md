@@ -2,6 +2,7 @@
 
 ### 실행 명령어 터미널에 [ $env:PORT=8080; node server.js ] 입력
 ### 로컬환경 웹 주소 : localhost:8080
+### ngrok http 8080
 
 ### 웹사이트 기체 움직임 속도
 ### config.json => "pollMs": 500(0.5초) 
