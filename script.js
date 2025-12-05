@@ -503,19 +503,25 @@ function resolveActualHex(hex) {
   return match?.hex || hex;
 }
 
-function createIcon(ac, color, isSelected) {
+function createIcon(ac, color, isSelected, shape = "plane") {
   const heading = Number.isFinite(ac.track) ? ac.track : 0;
   const fill = isSelected ? lightenHex(color, 1.15) : color;
-  const strokeAttrs = isSelected
-    ? 'stroke="rgba(0,0,0,0.45)" stroke-width="1.5" stroke-linejoin="round"'
-    : 'stroke="none"';
+  const outline = isSelected ? "rgba(0,0,0,0.45)" : "none";
+  const planeSvg = `<path d="M2 13l1.5-2 7-1 1-6h1l1 6 7 1 1.5 2-1.5 2-7 1-1 6h-1l-1-6-7-1z" stroke="${outline}" stroke-width="1.5" stroke-linejoin="round" />`;
+  const droneSvg = `
+      <circle cx="5" cy="5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.82" />
+      <circle cx="19" cy="5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.82" />
+      <circle cx="5" cy="19" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.82" />
+      <circle cx="19" cy="19" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6" opacity="0.82" />
+      <path d="M11.25 3c0-.7.55-1.25 1.25-1.25S13.75 2.3 13.75 3v3.2l1.7-1.7a1 1 0 0 1 1.4 1.4L14.5 8.3H17c.7 0 1.25.55 1.25 1.25S17.7 10.8 17 10.8h-2.5l1.7 1.7a1 1 0 1 1-1.4 1.4L13.75 12V15c0 .7-.55 1.25-1.25 1.25S11.25 15.7 11.25 15V12l-1.7 1.7a1 1 0 0 1-1.4-1.4l1.7-1.7H7c-.7 0-1.25-.55-1.25-1.25S6.3 8.3 7 8.3h2.5L7.8 5.9a1 1 0 0 1 1.4-1.4l2.05 2.05z" stroke="${outline}" stroke-width="1.2" stroke-linejoin="round" />
+      <path d="M12 4.3 13.2 6.5h-2.4L12 4.3z" />
+      <circle cx="12" cy="12" r="2.2" />`;
+  const body = shape === "drone" ? droneSvg : planeSvg;
   return L.divIcon({
     className: `plane-icon${isSelected ? " selected" : ""}`,
     iconSize: [34, 34],
     iconAnchor: [17, 17],
-    html: `<svg viewBox="0 0 24 24" width="30" height="30" style="transform: rotate(${heading}deg); color:${fill};" fill="currentColor">
-      <path d="M2 13l1.5-2 7-1 1-6h1l1 6 7 1 1.5 2-1.5 2-7 1-1 6h-1l-1-6-7-1z" ${strokeAttrs} />
-    </svg>`
+    html: `<svg viewBox="0 0 24 24" width="30" height="30" style="transform: rotate(${heading}deg); color:${fill};" fill="currentColor">${body}</svg>`
   });
 }
 
@@ -564,7 +570,9 @@ function refreshSelectedIcons() {
     if (!ac) return;
     const base = pickColor(ac);
     const color = getAlertColor(ac) || base;
-    entry.marker.setIcon(createIcon(ac, color, hex === selectedHex));
+    const isFake = fakePlanes.some((f) => f.hex === hex);
+    const shape = isFake ? "drone" : "plane";
+    entry.marker.setIcon(createIcon(ac, color, hex === selectedHex, shape));
     if (trailLines.has(hex)) {
       trailLines.get(hex).setStyle({ color });
     }
