@@ -106,6 +106,21 @@
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
     }
 
+    .alert-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 12px;
+      background: rgba(244, 63, 94, 0.9);
+      color: #ffe8ed;
+      font-weight: 800;
+      font-size: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+      box-shadow: 0 6px 12px rgba(244, 63, 94, 0.35);
+    }
+
     .panel {
       position: fixed;
       bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
@@ -120,7 +135,8 @@
       flex-wrap: wrap;
       gap: 10px;
       font-size: 13px;
-      pointer-events: none;
+      pointer-events: auto;
+      z-index: 30;
     }
 
     .panel strong { color: var(--text); }
@@ -130,6 +146,208 @@
       display: grid;
       gap: 4px;
       min-width: 120px;
+    }
+
+    .btn-stat {
+      width: 100%;
+    }
+
+    .btn {
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(40, 90, 180, 0.35), rgba(20, 60, 120, 0.6));
+      color: #cde3ff;
+      font-weight: 800;
+      letter-spacing: -0.1px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 8px 20px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .btn.secondary {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+      color: #d7e3f5;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn.danger {
+      background: linear-gradient(180deg, rgba(244, 63, 94, 0.3), rgba(148, 35, 52, 0.65));
+      border-color: rgba(244, 63, 94, 0.35);
+      color: #ffe4ea;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: grid;
+      place-items: center;
+      z-index: 50;
+      padding: 16px;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal__panel {
+      width: min(420px, 100%);
+      background: rgba(10, 20, 40, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 14px 16px 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      color: var(--text);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .modal__title {
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    .modal__close {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .modal__body {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal__field {
+      display: grid;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .modal__field input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .modal__range {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .modal__range .dash {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .modal__actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .plane-popup .popup-body {
+      display: grid;
+      gap: 6px;
+      color: var(--text);
+    }
+
+    .plane-popup .popup-title {
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .plane-popup .popup-hex {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .plane-popup .popup-img img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: contain;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .deny-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: grid;
+      place-items: center;
+      z-index: 999;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .deny-panel {
+      background: rgba(10, 20, 40, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 16px;
+      color: var(--text);
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .deny-title {
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .deny-desc {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .perm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      display: grid;
+      place-items: center;
+      z-index: 998;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .perm-actions {
+      margin-top: 12px;
     }
 
     /* Plane icons */
@@ -175,13 +393,67 @@
       <span class="dot"></span>
       <span id="status-text">기체 불러오는 중...</span>
     </div>
-    <button class="pill action" id="test-alert-btn" type="button">테스트 알림</button>
+    <span id="alert-indicator" class="alert-badge hidden">경고</span>
   </div>
   <div class="error" id="error-box"></div>
   <div class="panel">
-    <div class="stat"><span>총 기체 수</span><strong id="count-total">-</strong></div>
-    <div class="stat"><span>좌표 보유</span><strong id="count-pos">-</strong></div>
-    <div class="stat"><span>최근 갱신</span><strong id="ping-ms">-</strong></div>
+    <div class="stat btn-stat" id="row-add-plane">
+      <button id="add-plane" class="btn wide">기체 추가</button>
+    </div>
+    <div class="stat btn-stat hidden" id="row-config-plane">
+      <button id="config-plane" class="btn secondary wide">기체 설정</button>
+    </div>
+    <div class="stat btn-stat hidden" id="row-delete-plane">
+      <button id="delete-plane" class="btn danger wide">기체 삭제</button>
+    </div>
+  </div>
+
+  <div id="deny-overlay" class="deny-overlay hidden" role="alert">
+    <div class="deny-panel">
+      <div class="deny-title">알림 권한이 거부되었습니다.</div>
+      <div class="deny-desc">알림이 필수이므로 앱을 닫습니다. 권한을 허용한 뒤 다시 열어주세요.</div>
+    </div>
+  </div>
+
+  <div id="perm-overlay" class="perm-overlay hidden" role="dialog" aria-modal="true">
+    <div class="deny-panel">
+      <div class="deny-title">알림 권한이 필요합니다</div>
+      <div class="deny-desc">안전 반경 침입 알림을 받기 위해 알림을 허용해주세요.</div>
+      <div class="perm-actions">
+        <button id="perm-accept" class="btn wide">알림 허용</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="config-modal" role="dialog" aria-modal="true">
+    <div class="modal__panel">
+      <div class="modal__header">
+        <div class="modal__title">기체 설정</div>
+        <button type="button" class="modal__close" id="config-close" aria-label="닫기">×</button>
+      </div>
+      <div class="modal__body">
+        <label class="modal__field">
+          <span>레이더 반경 (km)</span>
+          <input type="number" id="cfg-radar" min="1" max="400" step="1" value="10" inputmode="numeric" />
+        </label>
+        <label class="modal__field">
+          <span>안전 반경 (km)</span>
+          <input type="number" id="cfg-safety" min="1" max="200" step="1" value="5" inputmode="numeric" />
+        </label>
+        <label class="modal__field">
+          <span>고도 허용 범위 (km)</span>
+          <div class="modal__range">
+            <input type="number" id="cfg-alt-min" min="0" max="20" step="0.1" value="0" inputmode="decimal" />
+            <span class="dash">~</span>
+            <input type="number" id="cfg-alt-max" min="0" max="20" step="0.1" value="6" inputmode="decimal" />
+          </div>
+        </label>
+      </div>
+      <div class="modal__actions">
+        <button type="button" class="btn secondary" id="config-cancel">취소</button>
+        <button type="button" class="btn" id="config-save">저장</button>
+      </div>
+    </div>
   </div>
 
   <script src="./leaflet.js"></script>
@@ -195,17 +467,39 @@
 
     const statusPill = document.getElementById("status-pill");
     const statusText = document.getElementById("status-text");
-    const testAlertBtn = document.getElementById("test-alert-btn");
+    const alertIndicator = document.getElementById("alert-indicator");
     const errorBox = document.getElementById("error-box");
     const countTotal = document.getElementById("count-total");
     const countPos = document.getElementById("count-pos");
     const pingMs = document.getElementById("ping-ms");
+    const permOverlay = document.getElementById("perm-overlay");
+    const permAccept = document.getElementById("perm-accept");
 
     const markers = new Map(); // hex -> { marker, lastSeen }
+    const trails = new Map(); // hex -> LatLng[]
+    const trailLines = new Map(); // hex -> polyline
+    let selectedTrailHex = null;
     const STALE_MS = 45000;
     const POLL_MS = 2000;
     const VAPID_PUBLIC_KEY_ENDPOINT = "/vapid-public-key";
     let swRegistration = null;
+    let manualPlane = null;
+    const MANUAL_HEX = "FAKE-LOCAL";
+    const manualConfig = {
+      radarKm: 10,
+      safetyKm: 5,
+      altMinKm: 0,
+      altMaxKm: 6,
+    };
+    let dangerActive = false;
+    let lastDangerNotified = 0;
+    const DANGER_COOLDOWN_MS = 15000;
+    const notifiedSafetyHexes = new Set();
+    let radarCircle = null;
+    let safetyCircle = null;
+    let sectorCone = null;
+    let sectorBearing = null;
+    const imageCache = new Map(); // hex -> { status, url }
 
     const FT_TO_M = 0.3048;
 
@@ -233,7 +527,42 @@
       const [r, g, b] = hexToRgb(hex);
       const clamp = (v) => Math.min(255, Math.max(0, Math.round(v)));
       const mix = (ch) => (t >= 0 ? ch + (255 - ch) * t : ch * (1 + t));
-      return `#${clamp(mix(r)).toString(16).padStart(2, "0")}${clamp(mix(g)).toString(16, "0")}${clamp(mix(b)).toString(16, "0")}`;
+      return `#${clamp(mix(r)).toString(16).padStart(2, "0")}${clamp(mix(g)).toString(16).padStart(2, "0")}${clamp(mix(b)).toString(16).padStart(2, "0")}`;
+    }
+
+    function destinationPoint(lat, lon, bearingDegVal, distanceKm) {
+      const R = 6371;
+      const delta = distanceKm / R;
+      const theta = (bearingDegVal * Math.PI) / 180;
+      const lat1 = (lat * Math.PI) / 180;
+      const lon1 = (lon * Math.PI) / 180;
+
+      const sinLat1 = Math.sin(lat1);
+      const cosLat1 = Math.cos(lat1);
+      const sinDelta = Math.sin(delta);
+      const cosDelta = Math.cos(delta);
+      const sinTheta = Math.sin(theta);
+      const cosTheta = Math.cos(theta);
+
+      const sinLat2 = sinLat1 * cosDelta + cosLat1 * sinDelta * cosTheta;
+      const lat2 = Math.asin(sinLat2);
+      const y = sinTheta * sinDelta * cosLat1;
+      const x = cosDelta - sinLat1 * sinLat2;
+      const lon2 = lon1 + Math.atan2(y, x);
+
+      return [(lat2 * 180) / Math.PI, ((lon2 * 180) / Math.PI + 540) % 360 - 180];
+    }
+
+    function bearingDeg(lat1, lon1, lat2, lon2) {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const toDeg = (r) => (r * 180) / Math.PI;
+      const phi1 = toRad(lat1);
+      const phi2 = toRad(lat2);
+      const dLon = toRad(lon2 - lon1);
+      const y = Math.sin(dLon) * Math.cos(phi2);
+      const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dLon);
+      const theta = Math.atan2(y, x);
+      return (toDeg(theta) + 360) % 360;
     }
 
     function altitudeToColor(ac) {
@@ -255,9 +584,9 @@
       return bands[bands.length - 1].to;
     }
 
-    function createPlaneIcon(ac, isSelected = false) {
+    function createPlaneIcon(ac, isSelected = false, overrideColor = null) {
       const heading = Number.isFinite(ac.track) ? ac.track : 0;
-      const color = altitudeToColor(ac);
+      const color = overrideColor || altitudeToColor(ac);
       const fill = isSelected ? color : color;
       const strokeAttrs = isSelected
         ? 'stroke="rgba(0,0,0,0.45)" stroke-width="1.5" stroke-linejoin="round"'
@@ -313,25 +642,123 @@
         const pos = [ac.lat, ac.lon];
         seen.add(hex);
 
+        let overrideColor = null;
+        if (manualPlane) {
+        const distKm = haversineKm(manualPlane.lat, manualPlane.lon, ac.lat, ac.lon);
+        const altM = altitudeMeters(ac);
+        const withinAlt = altM === null || (altM >= manualConfig.altMinKm * 1000 && altM <= manualConfig.altMaxKm * 1000);
+        if (distKm <= manualConfig.safetyKm && withinAlt) {
+          overrideColor = "#f43f5e"; // red
+        } else if (distKm <= manualConfig.radarKm) {
+          overrideColor = "#facc15"; // yellow
+        }
+        }
+
+        const clickHandler = () => openPlaneDetail(ac, pos);
+
         if (!markers.has(hex)) {
-          const marker = L.marker(pos, { icon: createPlaneIcon(ac, false) }).addTo(map);
+          const marker = L.marker(pos, { icon: createPlaneIcon(ac, false, overrideColor) }).addTo(map);
           marker.bindTooltip(`${ac.flight || ac.hex || "Unknown"}`, { direction: "top", offset: [0, -8] });
+          marker.on("click", clickHandler);
           markers.set(hex, { marker, lastSeen: now });
         } else {
           const entry = markers.get(hex);
           entry.marker.setLatLng(pos);
-          entry.marker.setIcon(createPlaneIcon(ac, false));
+          entry.marker.setIcon(createPlaneIcon(ac, false, overrideColor));
           entry.lastSeen = now;
+          entry.marker.off("click");
+          entry.marker.on("click", clickHandler);
+        }
+
+        if (selectedTrailHex === hex) {
+          const history = trails.get(hex) || [];
+          history.push(pos);
+          if (history.length > 150) history.shift();
+          trails.set(hex, history);
+          if (!trailLines.has(hex)) {
+            const line = L.polyline(history, { color: overrideColor || altitudeToColor(ac), weight: 2, opacity: 0.4 }).addTo(map);
+            trailLines.set(hex, line);
+          } else {
+            const line = trailLines.get(hex);
+            line.setLatLngs(history);
+            line.setStyle({ color: overrideColor || altitudeToColor(ac) });
+          }
         }
       });
 
       // Remove stale markers
       markers.forEach((entry, hex) => {
+        if (entry.manual) return;
         if (!seen.has(hex) && now - entry.lastSeen > STALE_MS) {
           map.removeLayer(entry.marker);
           markers.delete(hex);
+          if (trailLines.has(hex)) {
+            map.removeLayer(trailLines.get(hex));
+            trailLines.delete(hex);
+            trails.delete(hex);
+            if (selectedTrailHex === hex) selectedTrailHex = null;
+          }
         }
       });
+    }
+
+    function checkSafety(withPos = []) {
+      if (!manualPlane) {
+        dangerActive = false;
+        alertIndicator?.classList.add("hidden");
+        notifiedSafetyHexes.clear();
+        return;
+      }
+      const hits = [];
+      withPos.forEach((ac) => {
+        if (!ac) return;
+        const hexNorm = (ac.hex || ac.icao || ac.id || "").toUpperCase();
+        if (!hexNorm || hexNorm === MANUAL_HEX) return;
+        if (!Number.isFinite(ac.lat) || !Number.isFinite(ac.lon)) return;
+        const distKm = haversineKm(manualPlane.lat, manualPlane.lon, ac.lat, ac.lon);
+        const altM = altitudeMeters(ac);
+        if (
+          distKm <= manualConfig.safetyKm &&
+          (altM === null || (altM >= manualConfig.altMinKm * 1000 && altM <= manualConfig.altMaxKm * 1000))
+        ) {
+          hits.push({ ac, distKm, hexNorm });
+        }
+      });
+
+      dangerActive = hits.length > 0;
+      if (alertIndicator) alertIndicator.classList.toggle("hidden", !dangerActive);
+
+      if (dangerActive) {
+        const closest = hits.sort((a, b) => a.distKm - b.distKm)[0];
+        sectorBearing = bearingDeg(manualPlane.lat, manualPlane.lon, closest.ac.lat, closest.ac.lon);
+        setStatus(`위험: 안전 반경 내 기체 감지 (${closest.distKm.toFixed(1)}km)`, "danger");
+        updateManualOverlays();
+        const newHits = hits.filter((h) => !notifiedSafetyHexes.has(h.hexNorm));
+        newHits.forEach((h) => notifiedSafetyHexes.add(h.hexNorm));
+        if (newHits.length && Date.now() - lastDangerNotified > DANGER_COOLDOWN_MS) {
+          sendSafetyPush(newHits);
+          try {
+            if ("Notification" in window && Notification.permission === "granted") {
+              const title = `안전반경 침입: ${newHits.length}대`;
+              const body = newHits
+                .slice(0, 3)
+                .map((h) => `${h.ac.flight || h.ac.hex || "unknown"} (${h.distKm.toFixed(1)}km)`)
+                .join(", ");
+            if (swRegistration && swRegistration.showNotification) {
+              swRegistration.showNotification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
+            } else {
+              new Notification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
+              }
+            }
+          } catch (e) {
+            /* ignore */
+          }
+          lastDangerNotified = Date.now();
+        }
+      } else {
+        sectorBearing = null;
+        updateManualOverlays();
+      }
     }
 
     async function poll() {
@@ -344,12 +771,13 @@
         const list = Array.isArray(data?.aircraft) ? data.aircraft : Array.isArray(data) ? data : [];
         const withPos = list.filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lon));
 
-        countTotal.textContent = list.length.toLocaleString("ko-KR");
-        countPos.textContent = withPos.length.toLocaleString("ko-KR");
-        pingMs.textContent = `${elapsed} ms`;
+        if (countTotal) countTotal.textContent = list.length.toLocaleString("ko-KR");
+        if (countPos) countPos.textContent = withPos.length.toLocaleString("ko-KR");
+        if (pingMs) pingMs.textContent = `${elapsed} ms`;
         setStatus(withPos.length ? `기체 ${withPos.length.toLocaleString("ko-KR")}대 위치 표시 중` : "표시할 기체 없음", withPos.length ? "ok" : "warn");
 
         updateMarkers(withPos);
+        checkSafety(withPos);
       } catch (e) {
         showError("데이터 불러오기 실패");
         setStatus("데이터 불러오기 실패", "danger");
@@ -387,18 +815,25 @@
       }
     }
 
-    async function ensurePushActive() {
+    async function ensurePushActive(interactive = false) {
       const reg = await registerServiceWorker();
       if (!reg) return false;
       if (!("Notification" in window) || !("PushManager" in window)) {
         showError("푸시 미지원 환경");
         return false;
       }
-      const permission = Notification.permission === "granted" ? "granted" : await Notification.requestPermission();
-      if (permission !== "granted") {
-        showError("알림 권한 거부됨");
+      const permission = Notification.permission;
+      if (permission === "default" && !interactive) {
+        showPermissionPrompt();
         return false;
       }
+      const finalPermission = permission === "granted" ? "granted" : await Notification.requestPermission();
+      if (finalPermission !== "granted") {
+        showError("알림 권한 거부됨");
+        showPermissionDenied();
+        return false;
+      }
+      hidePermissionPrompt();
 
       let subscription = await reg.pushManager.getSubscription();
       try {
@@ -421,30 +856,277 @@
       }
     }
 
-    async function sendTestAlert() {
-      if (testAlertBtn) testAlertBtn.disabled = true;
-      const ready = await ensurePushActive();
-      if (!ready) {
-        if (testAlertBtn) testAlertBtn.disabled = false;
-        return;
-      }
-      try {
-        const res = await fetch("/api/push/test", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({}),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        setStatus("테스트 알림 전송 완료", "ok");
-      } catch (e) {
-        showError("테스트 알림 전송 실패");
-        setStatus("테스트 알림 전송 실패", "danger");
-      } finally {
-        if (testAlertBtn) testAlertBtn.disabled = false;
+    function showPermissionPrompt() {
+      permOverlay?.classList.remove("hidden");
+    }
+
+    function hidePermissionPrompt() {
+      permOverlay?.classList.add("hidden");
+    }
+
+    // 앱 진입 시 한 번 권한/푸시 구독 시도 (필요 시 오버레이 노출)
+    ensurePushActive(false);
+
+    function updateManualButtonsState() {
+      const hasManual = Boolean(manualPlane && markers.has(MANUAL_HEX));
+      const rowAdd = document.getElementById("row-add-plane");
+      const rowConfig = document.getElementById("row-config-plane");
+      const rowDelete = document.getElementById("row-delete-plane");
+      if (hasManual) {
+        rowAdd?.classList.add("hidden");
+        rowConfig?.classList.remove("hidden");
+        rowDelete?.classList.remove("hidden");
+      } else {
+        rowAdd?.classList.remove("hidden");
+        rowConfig?.classList.add("hidden");
+        rowDelete?.classList.add("hidden");
       }
     }
 
-    testAlertBtn?.addEventListener("click", sendTestAlert);
+    function createManualPlane() {
+      const center = map.getCenter();
+      const ac = {
+        hex: MANUAL_HEX,
+        flight: "MANUAL",
+        lat: center.lat,
+        lon: center.lng,
+        alt_baro: 12000, // ft
+        track: 0,
+      };
+      const marker = L.marker([ac.lat, ac.lon], { icon: createPlaneIcon(ac, true), draggable: true }).addTo(map);
+      marker.setZIndexOffset(1000);
+      marker.bindTooltip("수동 추가 기체", { direction: "top", offset: [0, -8] });
+      marker.on("dragend", (evt) => {
+        const ll = evt.target.getLatLng();
+        manualPlane.lat = ll.lat;
+        manualPlane.lon = ll.lng;
+        markers.set(MANUAL_HEX, { marker, lastSeen: Date.now(), manual: true });
+        updateManualOverlays();
+        setStatus("수동 기체 위치 변경됨", "ok");
+      });
+      markers.set(MANUAL_HEX, { marker, lastSeen: Date.now(), manual: true });
+      manualPlane = ac;
+      map.panTo(center);
+      sectorBearing = null;
+      setStatus("수동 기체 추가됨", "ok");
+      updateManualOverlays();
+      updateManualButtonsState();
+    }
+
+    function removeManualPlane() {
+      const entry = markers.get(MANUAL_HEX);
+      if (entry) {
+        map.removeLayer(entry.marker);
+        markers.delete(MANUAL_HEX);
+        if (trailLines.has(MANUAL_HEX)) {
+          map.removeLayer(trailLines.get(MANUAL_HEX));
+          trailLines.delete(MANUAL_HEX);
+          trails.delete(MANUAL_HEX);
+        }
+      }
+      manualPlane = null;
+      if (radarCircle) { map.removeLayer(radarCircle); radarCircle = null; }
+      if (safetyCircle) { map.removeLayer(safetyCircle); safetyCircle = null; }
+      if (sectorCone) { map.removeLayer(sectorCone); sectorCone = null; }
+      setStatus("수동 기체 삭제됨", "warn");
+      notifiedSafetyHexes.clear();
+      updateManualButtonsState();
+    }
+
+    document.getElementById("add-plane")?.addEventListener("click", () => {
+      removeManualPlane();
+      createManualPlane();
+    });
+
+    document.getElementById("delete-plane")?.addEventListener("click", removeManualPlane);
+
+    document.getElementById("config-plane")?.addEventListener("click", () => {
+      const modal = document.getElementById("config-modal");
+      if (modal) modal.classList.remove("hidden");
+      const radar = document.getElementById("cfg-radar");
+      const safety = document.getElementById("cfg-safety");
+      const altMin = document.getElementById("cfg-alt-min");
+      const altMax = document.getElementById("cfg-alt-max");
+      if (radar) radar.value = manualConfig.radarKm;
+      if (safety) safety.value = manualConfig.safetyKm;
+      if (altMin) altMin.value = manualConfig.altMinKm;
+      if (altMax) altMax.value = manualConfig.altMaxKm;
+    });
+
+    updateManualButtonsState();
+
+    function closeConfigModal() {
+      const modal = document.getElementById("config-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function saveConfig() {
+      const radar = document.getElementById("cfg-radar");
+      const safety = document.getElementById("cfg-safety");
+      const altMin = document.getElementById("cfg-alt-min");
+      const altMax = document.getElementById("cfg-alt-max");
+      const toNumber = (el, fallback) => {
+        if (!el) return fallback;
+        const v = parseFloat(el.value);
+        return Number.isFinite(v) ? v : fallback;
+      };
+      manualConfig.radarKm = Math.max(1, toNumber(radar, manualConfig.radarKm));
+      manualConfig.safetyKm = Math.max(1, toNumber(safety, manualConfig.safetyKm));
+      const minVal = toNumber(altMin, manualConfig.altMinKm);
+      const maxVal = toNumber(altMax, manualConfig.altMaxKm);
+      manualConfig.altMinKm = Math.max(0, Math.min(minVal, maxVal));
+      manualConfig.altMaxKm = Math.max(manualConfig.altMinKm, Math.min(maxVal, 20));
+      if (altMin) altMin.value = manualConfig.altMinKm;
+      if (altMax) altMax.value = manualConfig.altMaxKm;
+      setStatus("설정이 저장되었습니다.", "ok");
+      updateManualOverlays();
+      closeConfigModal();
+    }
+
+    document.getElementById("config-close")?.addEventListener("click", closeConfigModal);
+    document.getElementById("config-cancel")?.addEventListener("click", closeConfigModal);
+    document.getElementById("config-save")?.addEventListener("click", saveConfig);
+
+    async function sendSafetyPush(hits = []) {
+      if (!hits.length) return;
+      const ready = await ensurePushActive();
+      if (!ready) return;
+      try {
+        await fetch("/api/push/safety", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            entries: hits.slice(0, 10).map((h) => ({
+              hex: h.hexNorm || h.ac.hex,
+              call: h.ac.flight || h.ac.hex || "unknown",
+              dist: h.distKm,
+              msg: `${h.ac.flight || h.ac.hex || "unknown"} (${h.distKm.toFixed(1)}km)`,
+            })),
+          }),
+        });
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    function showPermissionDenied() {
+      const overlay = document.getElementById("deny-overlay");
+      overlay?.classList.remove("hidden");
+      // 시도: 브라우저가 허용하면 창 닫기
+      try {
+        window.close();
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    permAccept?.addEventListener("click", () => {
+      ensurePushActive(true);
+    });
+
+    async function openPlaneDetail(ac, pos = null) {
+      if (!ac?.hex) return;
+      setTrailTarget(ac.hex, ac, pos || [ac.lat, ac.lon]);
+      const hex = (ac.hex || "").toUpperCase();
+      const name = ac.flight || hex || "Unknown";
+      const popup = L.popup({ maxWidth: 260, minWidth: 200, className: "plane-popup" });
+      popup.setLatLng(pos || [ac.lat, ac.lon]);
+      popup.setContent(`<div class="popup-body"><div class="popup-title">${name}</div><div class="popup-hex">HEX: ${hex}</div><div id="popup-img-${hex}" class="popup-img">이미지 불러오는 중...</div></div>`);
+      popup.openOn(map);
+
+      if (imageCache.has(hex) && imageCache.get(hex).status === "ok") {
+        const url = imageCache.get(hex).url;
+        const imgEl = document.getElementById(`popup-img-${hex}`);
+        if (imgEl) imgEl.innerHTML = `<img src="${url}" alt="${name}" />`;
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/plane-image?hex=${hex}`);
+        if (!res.ok) throw new Error("image fetch failed");
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        imageCache.set(hex, { status: "ok", url });
+        const imgEl = document.getElementById(`popup-img-${hex}`);
+        if (imgEl) imgEl.innerHTML = `<img src="${url}" alt="${name}" />`;
+      } catch (e) {
+        imageCache.set(hex, { status: "fail" });
+        const imgEl = document.getElementById(`popup-img-${hex}`);
+        if (imgEl) imgEl.textContent = "이미지를 불러오지 못했습니다.";
+      }
+    }
+
+    function setTrailTarget(hex, ac, pos) {
+      if (selectedTrailHex && selectedTrailHex !== hex) {
+        // clear previous trail line
+        if (trailLines.has(selectedTrailHex)) {
+          map.removeLayer(trailLines.get(selectedTrailHex));
+          trailLines.delete(selectedTrailHex);
+        }
+        trails.delete(selectedTrailHex);
+      }
+      selectedTrailHex = hex;
+      if (!trails.has(hex) && pos) {
+        trails.set(hex, [pos]);
+      }
+    }
+
+    function updateManualOverlays() {
+      if (!manualPlane) return;
+      const center = [manualPlane.lat, manualPlane.lon];
+      if (!radarCircle) {
+        radarCircle = L.circle(center, {
+          radius: manualConfig.radarKm * 1000,
+          color: "rgba(56, 189, 248, 0.8)",
+          weight: 1.2,
+          fillOpacity: 0.0,
+        }).addTo(map);
+      } else {
+        radarCircle.setLatLng(center);
+        radarCircle.setRadius(manualConfig.radarKm * 1000);
+      }
+
+      if (!safetyCircle) {
+        safetyCircle = L.circle(center, {
+          radius: manualConfig.safetyKm * 1000,
+          color: "rgba(244, 63, 94, 0.8)",
+          weight: 1.6,
+          fillColor: "rgba(244, 63, 94, 0.15)",
+          fillOpacity: 0.15,
+        }).addTo(map);
+      } else {
+        safetyCircle.setLatLng(center);
+        safetyCircle.setRadius(manualConfig.safetyKm * 1000);
+      }
+
+      const heading = sectorBearing ?? 0;
+      const spreadDeg = 40;
+      const start = heading - spreadDeg / 2;
+      const end = heading + spreadDeg / 2;
+      const steps = 10;
+      const pts = [];
+      pts.push(center);
+      for (let i = 0; i <= steps; i++) {
+        const b = start + ((end - start) * i) / steps;
+        pts.push(destinationPoint(center[0], center[1], b, manualConfig.safetyKm));
+      }
+      const conePts = sectorBearing === null ? [] : pts;
+      if (!sectorCone) {
+        sectorCone = L.polygon(conePts, {
+          color: "rgba(0,0,0,0)",
+          weight: 0,
+          fillColor: "rgba(244, 63, 94, 0.35)",
+          fillOpacity: 0.35,
+        }).addTo(map);
+      } else {
+        sectorCone.setLatLngs(conePts);
+      }
+      if (sectorBearing === null) {
+        sectorCone.setStyle({ opacity: 0, fillOpacity: 0 });
+      } else {
+        sectorCone.setStyle({ opacity: 1, fillOpacity: 0.35 });
+      }
+    }
   </script>
 </body>
 </html>
