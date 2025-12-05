@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
@@ -260,6 +260,167 @@
       font-size: 14px;
     }
 
+    .modal__range-block {
+      display: grid;
+      grid-template-columns: 1fr 110px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .modal__range-block input[type="range"],
+    .modal__range input[type="range"],
+    .dual-range {
+      --track-height: 10px;
+      --track-bg: rgba(255, 255, 255, 0.08);
+      --fill: 0%;
+      --fill-gradient: linear-gradient(90deg, #3ecbff 0%, #1fa7ff 100%);
+      --thumb-size: 18px;
+    }
+
+    .modal__range-block input[type="range"],
+    .modal__range input[type="range"] {
+      width: 100%;
+      appearance: none;
+      height: var(--track-height);
+      border-radius: 999px;
+      background: transparent;
+      outline: none;
+      box-shadow: none;
+      accent-color: #3ecbff;
+    }
+
+    .modal__range-block input[type="range"]::-webkit-slider-runnable-track,
+    .modal__range input[type="range"]::-webkit-slider-runnable-track {
+      height: var(--track-height);
+      border-radius: 999px;
+      background:
+        var(--fill-gradient) 0 / var(--fill) 100% no-repeat,
+        var(--track-bg);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .modal__range-block input[type="range"]::-moz-range-track,
+    .modal__range input[type="range"]::-moz-range-track {
+      height: var(--track-height);
+      border-radius: 999px;
+      background: var(--track-bg);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04);
+      border: none;
+    }
+
+    .modal__range-block input[type="range"]::-moz-range-progress,
+    .modal__range input[type="range"]::-moz-range-progress {
+      height: var(--track-height);
+      border-radius: 999px;
+      background: var(--fill-gradient);
+      border: none;
+    }
+
+    .modal__range-block input[type="range"]::-webkit-slider-thumb,
+    .modal__range input[type="range"]::-webkit-slider-thumb,
+    .dual-range input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: var(--thumb-size);
+      height: var(--thumb-size);
+      border-radius: 50%;
+      background: linear-gradient(180deg, #f8fbff, #d7ebff);
+      border: 2px solid #7cd8ff;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 6px rgba(56, 189, 248, 0.15);
+      cursor: pointer;
+      margin-top: calc((var(--thumb-size) - var(--track-height)) / -2);
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .modal__range-block input[type="range"]::-moz-range-thumb,
+    .modal__range input[type="range"]::-moz-range-thumb,
+    .dual-range input[type="range"]::-moz-range-thumb {
+      width: var(--thumb-size);
+      height: var(--thumb-size);
+      border-radius: 50%;
+      background: linear-gradient(180deg, #f8fbff, #d7ebff);
+      border: 2px solid #7cd8ff;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), 0 0 0 6px rgba(56, 189, 248, 0.15);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.15s ease;
+    }
+
+    .modal__range-block input[type="range"]:active::-webkit-slider-thumb,
+    .modal__range input[type="range"]:active::-webkit-slider-thumb,
+    .dual-range input[type="range"]:active::-webkit-slider-thumb {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 8px rgba(56, 189, 248, 0.18);
+      transform: translateY(1px);
+    }
+
+    .modal__range-block input[type="range"]:active::-moz-range-thumb,
+    .modal__range input[type="range"]:active::-moz-range-thumb,
+    .dual-range input[type="range"]:active::-moz-range-thumb {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4), 0 0 0 8px rgba(56, 189, 248, 0.18);
+      transform: translateY(1px);
+    }
+
+    .dual-range {
+      position: relative;
+      height: 48px;
+      margin-bottom: 8px;
+      padding: 10px 0;
+    }
+
+    .dual-range input[type="range"] {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 100%;
+      background: transparent;
+      pointer-events: none;
+      height: var(--track-height);
+    }
+
+    .dual-range input[type="range"]::-webkit-slider-runnable-track {
+      background: transparent;
+      height: var(--track-height);
+      border: none;
+    }
+
+    .dual-range input[type="range"]::-moz-range-track {
+      background: transparent;
+      height: var(--track-height);
+      border: none;
+    }
+
+    .dual-range input[type="range"]::-webkit-slider-thumb {
+      pointer-events: auto;
+    }
+
+    .dual-range input[type="range"]::-moz-range-thumb {
+      pointer-events: auto;
+    }
+
+    .dual-range__track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: var(--track-height);
+      border-radius: 999px;
+      background: var(--track-bg);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .dual-range__fill {
+      position: absolute;
+      height: var(--track-height);
+      top: 50%;
+      transform: translateY(-50%);
+      border-radius: 999px;
+      background: var(--fill-gradient);
+      box-shadow: 0 8px 18px rgba(31, 167, 255, 0.25);
+      pointer-events: none;
+    }
+
     .modal__range {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
@@ -410,15 +571,15 @@
 
   <div id="deny-overlay" class="deny-overlay hidden" role="alert">
     <div class="deny-panel">
-      <div class="deny-title">알림 권한이 거부되었습니다.</div>
-      <div class="deny-desc">알림이 필수이므로 앱을 닫습니다. 권한을 허용한 뒤 다시 열어주세요.</div>
+      <div class="deny-title">알림 권한이 거부되었습니다</div>
+      <div class="deny-desc">알림을 수신할 수 없어 기능이 제한됩니다. 권한을 허용해 주세요.</div>
     </div>
   </div>
 
   <div id="perm-overlay" class="perm-overlay hidden" role="dialog" aria-modal="true">
     <div class="deny-panel">
       <div class="deny-title">알림 권한이 필요합니다</div>
-      <div class="deny-desc">안전 반경 침입 알림을 받기 위해 알림을 허용해주세요.</div>
+      <div class="deny-desc">안전 반경 침입 알림을 받기 위해 알림을 허용해 주세요.</div>
       <div class="perm-actions">
         <button id="perm-accept" class="btn wide">알림 허용</button>
       </div>
@@ -434,18 +595,23 @@
       <div class="modal__body">
         <label class="modal__field">
           <span>레이더 반경 (km)</span>
-          <input type="number" id="cfg-radar" min="1" max="400" step="1" value="10" inputmode="numeric" />
+          <div class="modal__range-block">
+            <input type="range" id="cfg-radar-range" min="1" max="400" step="1" value="10" />
+            <input type="number" id="cfg-radar" min="1" max="400" step="1" value="10" inputmode="numeric" />
+          </div>
         </label>
         <label class="modal__field">
           <span>안전 반경 (km)</span>
-          <input type="number" id="cfg-safety" min="1" max="200" step="1" value="5" inputmode="numeric" />
+          <div class="modal__range-block">
+            <input type="range" id="cfg-safety-range" min="1" max="200" step="1" value="5" />
+            <input type="number" id="cfg-safety" min="1" max="200" step="1" value="5" inputmode="numeric" />
+          </div>
         </label>
         <label class="modal__field">
           <span>고도 허용 범위 (km)</span>
-          <div class="modal__range">
-            <input type="number" id="cfg-alt-min" min="0" max="20" step="0.1" value="0" inputmode="decimal" />
-            <span class="dash">~</span>
-            <input type="number" id="cfg-alt-max" min="0" max="20" step="0.1" value="6" inputmode="decimal" />
+          <div class="modal__range-block">
+            <input type="range" id="cfg-alt-range" min="0" max="20" step="0.1" value="6" />
+            <input type="number" id="cfg-alt" min="0" max="20" step="0.1" value="6" inputmode="decimal" />
           </div>
         </label>
       </div>
@@ -474,6 +640,58 @@
     const pingMs = document.getElementById("ping-ms");
     const permOverlay = document.getElementById("perm-overlay");
     const permAccept = document.getElementById("perm-accept");
+    permAccept?.addEventListener("click", () => ensurePushActive(true));
+
+    const setRangeFill = (input) => {
+      if (!input) return;
+      const min = parseFloat(input.min || "0");
+      const max = parseFloat(input.max || "100");
+      const val = parseFloat(input.value || min);
+      const pct = Math.min(Math.max(((val - min) / Math.max(max - min, 0.0001)) * 100, 0), 100);
+      input.style.setProperty("--fill", `${pct}%`);
+    };
+
+    // ?щ씪?대뜑? ?レ옄 ?낅젰 ?숆린??+ 梨꾩썙吏?援ш컙 ?ㅽ???媛깆떊
+    const syncRange = (rangeId, numberId, setter) => {
+      const r = document.getElementById(rangeId);
+      const n = document.getElementById(numberId);
+      if (!r || !n) return;
+      const apply = (val) => {
+        const num = parseFloat(val);
+        if (Number.isFinite(num)) {
+          n.value = num;
+          if (typeof setter === "function") setter(num);
+          setRangeFill(r);
+        }
+      };
+      setRangeFill(r);
+      r.addEventListener("input", () => apply(r.value));
+      n.addEventListener("input", () => apply(n.value));
+    };
+
+    syncRange("cfg-radar-range", "cfg-radar", (v) => (manualConfig.radarKm = Math.max(1, v)));
+    syncRange("cfg-safety-range", "cfg-safety", (v) => (manualConfig.safetyKm = Math.max(1, v)));
+
+    const altRange = document.getElementById("cfg-alt-range");
+    const altInput = document.getElementById("cfg-alt");
+
+    const syncAltSingle = () => {
+      if (!altRange || !altInput) return;
+      const apply = (val) => {
+        const num = parseFloat(val);
+        if (!Number.isFinite(num)) return;
+        manualConfig.altMinKm = 0;
+        manualConfig.altMaxKm = Math.max(0, Math.min(num, 20));
+        altRange.value = manualConfig.altMaxKm;
+        altInput.value = manualConfig.altMaxKm;
+        setRangeFill(altRange);
+      };
+      setRangeFill(altRange);
+      altRange.addEventListener("input", () => apply(altRange.value));
+      altInput.addEventListener("input", () => apply(altInput.value));
+    };
+
+    syncAltSingle();
 
     const markers = new Map(); // hex -> { marker, lastSeen }
     const trails = new Map(); // hex -> LatLng[]
@@ -801,7 +1019,7 @@
 
     async function registerServiceWorker() {
       if (!("serviceWorker" in navigator)) {
-        showError("서비스워커 미지원");
+        showError("\uC774 \uBE0C\uB77C\uC6B0\uC800\uB294 \uC11C\uBE44\uC2A4 \uC6CC\uCEE4\uB97C \uC9C0\uC6D0\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.");
         return null;
       }
       if (swRegistration) return swRegistration;
@@ -810,7 +1028,7 @@
         swRegistration = await navigator.serviceWorker.ready;
         return swRegistration;
       } catch (e) {
-        showError("서비스워커 등록 실패");
+        showError("\uC11C\uBE44\uC2A4 \uC6CC\uCEE4 \uB4F1\uB85D \uC2E4\uD328");
         return null;
       }
     }
@@ -819,7 +1037,7 @@
       const reg = await registerServiceWorker();
       if (!reg) return false;
       if (!("Notification" in window) || !("PushManager" in window)) {
-        showError("푸시 미지원 환경");
+        showError("이 브라우저는 알림/푸시를 지원하지 않습니다.");
         return false;
       }
       const permission = Notification.permission;
@@ -839,7 +1057,7 @@
       try {
         if (!subscription) {
           const res = await fetch(VAPID_PUBLIC_KEY_ENDPOINT, { cache: "no-store" });
-          if (!res.ok) throw new Error("VAPID 키 불러오기 실패");
+          if (!res.ok) throw new Error("VAPID ??遺덈윭?ㅺ린 ?ㅽ뙣");
           const vapidKey = (await res.text()).trim();
           const appServerKey = urlBase64ToUint8Array(vapidKey);
           subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appServerKey });
@@ -851,7 +1069,7 @@
         });
         return true;
       } catch (e) {
-        showError("푸시 활성화 실패");
+        showError("?몄떆 ?쒖꽦???ㅽ뙣");
         return false;
       }
     }
@@ -864,7 +1082,7 @@
       permOverlay?.classList.add("hidden");
     }
 
-    // 앱 진입 시 한 번 권한/푸시 구독 시도 (필요 시 오버레이 노출)
+    // ??吏꾩엯 ????踰?沅뚰븳/?몄떆 援щ룆 ?쒕룄 (?꾩슂 ???ㅻ쾭?덉씠 ?몄텧)
     ensurePushActive(false);
 
     function updateManualButtonsState() {
@@ -945,12 +1163,25 @@
       if (modal) modal.classList.remove("hidden");
       const radar = document.getElementById("cfg-radar");
       const safety = document.getElementById("cfg-safety");
-      const altMin = document.getElementById("cfg-alt-min");
-      const altMax = document.getElementById("cfg-alt-max");
+      const alt = document.getElementById("cfg-alt");
       if (radar) radar.value = manualConfig.radarKm;
+      const radarRange = document.getElementById("cfg-radar-range");
+      if (radarRange) {
+        radarRange.value = manualConfig.radarKm;
+        setRangeFill(radarRange);
+      }
       if (safety) safety.value = manualConfig.safetyKm;
-      if (altMin) altMin.value = manualConfig.altMinKm;
-      if (altMax) altMax.value = manualConfig.altMaxKm;
+      const safetyRange = document.getElementById("cfg-safety-range");
+      if (safetyRange) {
+        safetyRange.value = manualConfig.safetyKm;
+        setRangeFill(safetyRange);
+      }
+      if (alt) alt.value = manualConfig.altMaxKm;
+      const altRange = document.getElementById("cfg-alt-range");
+      if (altRange) {
+        altRange.value = manualConfig.altMaxKm;
+        setRangeFill(altRange);
+      }
     });
 
     updateManualButtonsState();
@@ -963,8 +1194,10 @@
     function saveConfig() {
       const radar = document.getElementById("cfg-radar");
       const safety = document.getElementById("cfg-safety");
-      const altMin = document.getElementById("cfg-alt-min");
-      const altMax = document.getElementById("cfg-alt-max");
+      const alt = document.getElementById("cfg-alt");
+      const radarRange = document.getElementById("cfg-radar-range");
+      const safetyRange = document.getElementById("cfg-safety-range");
+      const altRange = document.getElementById("cfg-alt-range");
       const toNumber = (el, fallback) => {
         if (!el) return fallback;
         const v = parseFloat(el.value);
@@ -972,12 +1205,22 @@
       };
       manualConfig.radarKm = Math.max(1, toNumber(radar, manualConfig.radarKm));
       manualConfig.safetyKm = Math.max(1, toNumber(safety, manualConfig.safetyKm));
-      const minVal = toNumber(altMin, manualConfig.altMinKm);
-      const maxVal = toNumber(altMax, manualConfig.altMaxKm);
-      manualConfig.altMinKm = Math.max(0, Math.min(minVal, maxVal));
-      manualConfig.altMaxKm = Math.max(manualConfig.altMinKm, Math.min(maxVal, 20));
-      if (altMin) altMin.value = manualConfig.altMinKm;
-      if (altMax) altMax.value = manualConfig.altMaxKm;
+      const maxVal = toNumber(alt, manualConfig.altMaxKm);
+      manualConfig.altMinKm = 0;
+      manualConfig.altMaxKm = Math.max(0, Math.min(maxVal, 20));
+      if (radarRange) {
+        radarRange.value = manualConfig.radarKm;
+        setRangeFill(radarRange);
+      }
+      if (safetyRange) {
+        safetyRange.value = manualConfig.safetyKm;
+        setRangeFill(safetyRange);
+      }
+      if (altRange) {
+        altRange.value = manualConfig.altMaxKm;
+        setRangeFill(altRange);
+      }
+      if (alt) alt.value = manualConfig.altMaxKm;
       setStatus("설정이 저장되었습니다.", "ok");
       updateManualOverlays();
       closeConfigModal();
@@ -1012,7 +1255,7 @@
     function showPermissionDenied() {
       const overlay = document.getElementById("deny-overlay");
       overlay?.classList.remove("hidden");
-      // 시도: 브라우저가 허용하면 창 닫기
+      // ?쒕룄: 釉뚮씪?곗?媛 ?덉슜?섎㈃ 李??リ린
       try {
         window.close();
       } catch (e) {

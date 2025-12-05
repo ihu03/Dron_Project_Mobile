@@ -1,21 +1,5 @@
 [
   {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/emeB7nfbZpk:APA91bEl_o0R3_4I4HA8f1yfllG4k3lFjp36lWs2LCmzrYD9FHd4rbugZ-d46Nz79j7yffGXAwcpyyrce6wWsrM5kI_3jQh2EmPPH3218cICl7TforYn_K4ZOaP-2LqBMqse5VfWULqL",
-    "expirationTime": null,
-    "keys": {
-      "p256dh": "BC4SMgZAz6Gojbe_LzFLAobu5Sf4VqSBipFXl_8Nzvb10oixVc7QJQxHZjpZaInqmn8BHsZcaHlDWzZX-uwX8nQ",
-      "auth": "xABE4qLN5YxHoNS8Y5Ju8g"
-    }
-  },
-  {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/eWLb_EIRIjk:APA91bFQtvDnsIdCnlAq1APOn14Bg2vrTLZewFR636aW9pYRg9BH34MKn4m596O9KqFSYgOjsCdEc5COippZtMzZ5X-QjIxGKnTg7J5t_ZFZwaaFESGlFcPeQ3BJ0zbbP7Lnb45ZQb8L",
-    "expirationTime": null,
-    "keys": {
-      "p256dh": "BKvb8nYfS6uNnjzhQYEBKi3aTQwRy4x_OpzDma7462LlDk20HYDUwpQaIdvIaVw017K58jRs1aL-IQ9C-JgkmXA",
-      "auth": "kd53BFO_oytW2pWXMqzVyw"
-    }
-  },
-  {
     "endpoint": "https://web.push.apple.com/QKiJKBrtBgh2A_N1IXeI_3k21cp9l-UaSKHVipewi9yu_BljknqLD2T226A7c6bIzzV1nW90BnOamKvlI2bSPT_THGqBgXVtoWuJIFmW6oTgI0vfVz7Fmn74Z0qbZ3J89rwWP_-H39lMoXNs4xRx0c6pbbRKyIod4OT1M9NO0dc",
     "keys": {
       "p256dh": "BA8W6wA_697CNv6aPtjMyyfFFhkl2uRAS8ca-YMVgyEYiGIdIs-Ufp8Tlc3kHungy1fJXMUd32RylVQ1aJVsLV8",
@@ -55,6 +39,21 @@
     "keys": {
       "p256dh": "BBjzZD0oRXsMKI7DBWHSz_Lf2CJVu8JaaYZV9WgrtC75efkkdVg3NeAP4d-jJdOSbD3eEfWlpsirIJCcqKs3stQ",
       "auth": "Yq1vncg82MJVMchGsPzUJg"
+    }
+  },
+  {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/eUvKvQ9Fxxg:APA91bEWMOScNvj-0ObVU0GnzIlS8G3OCzA7SxfOIkim5ncgbCPXm7w9Phrajrt8xlynJEY9hNQChuxA-BwvafVDtPRy6FEFmiWempuRWTwGY5ZIe_HNczXUQEtw6qhrkootg9utICNf",
+    "expirationTime": null,
+    "keys": {
+      "p256dh": "BC9XH6UEB4yEY-TTM2cXgEtNU1PJsVK2_JKEW9aKUWpZib5DxT_AGF31ZndRhIUumFRqp86Z8DSbqR1qvnqe2YM",
+      "auth": "QVpn8qrLcvjaGeIdZ9B7QA"
+    }
+  },
+  {
+    "endpoint": "https://web.push.apple.com/QHkk_zez1l3CzAJ2wkRfe43aC2cq1dhQRKC0Z5Gt83cbaMiuvbbyAQmmsFMrT4mwHPDfMMLy6_BKPGa6wVcx05kM6p1Ag0cxRs0YhbcMbsMWcqf8sNETHGMLsJc4tY-vV1uucev1KkBOYZmrLeACunPIzSFg-WAxq-9Ss9u4TTw",
+    "keys": {
+      "p256dh": "BDFnTbXm_u5mUL8zA5bHXkcH0hcxac0ilm2lXBNdqpqrlEaBPwVHWxlE0nZ-8w7cZnl_UYuSzEYoB8PASfCPcyY",
+      "auth": "lpN3YC3YNK8W4gbbwHYbrA"
     }
   }
 ]
