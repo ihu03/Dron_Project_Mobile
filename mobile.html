@@ -959,7 +959,6 @@
         setStatus(`위험: 안전 반경 내 기체 감지 (${closest.distKm.toFixed(1)}km)`, "danger");
         updateManualOverlays();
         const newHits = hits.filter((h) => !notifiedSafetyHexes.has(h.hexNorm));
-        newHits.forEach((h) => notifiedSafetyHexes.add(h.hexNorm));
         if (newHits.length && Date.now() - lastDangerNotified > DANGER_COOLDOWN_MS) {
           sendSafetyPush(newHits);
           try {
@@ -969,15 +968,16 @@
                 .slice(0, 3)
                 .map((h) => `${h.ac.flight || h.ac.hex || "unknown"} (${h.distKm.toFixed(1)}km)`)
                 .join(", ");
-            if (swRegistration && swRegistration.showNotification) {
-              swRegistration.showNotification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
-            } else {
-              new Notification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
+              if (swRegistration && swRegistration.showNotification) {
+                swRegistration.showNotification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
+              } else {
+                new Notification(title, { body, icon: "/icons/icon-192.png", badge: "/icons/icon-192.png" });
               }
             }
           } catch (e) {
             /* ignore */
           }
+          newHits.forEach((h) => notifiedSafetyHexes.add(h.hexNorm));
           lastDangerNotified = Date.now();
         }
       } else {
