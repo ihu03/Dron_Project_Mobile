@@ -1,0 +1,3 @@
+@echo off
+ngrok config add-authtoken 36P1XOSH2eLdMdvrPZLApGLWOXD_525jKNsmkGJPa3R7Ch83j
+pause
