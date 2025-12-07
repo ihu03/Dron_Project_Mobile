@@ -311,6 +311,7 @@ async function handlePushSafety(req, res) {
     payloadBody = {};
   }
   const entries = Array.isArray(payloadBody.entries) ? payloadBody.entries : [];
+  const excludeEndpoint = typeof payloadBody.excludeEndpoint === "string" ? payloadBody.excludeEndpoint.trim() : "";
   const title = `안전반경 침입: ${entries.length || ""}대`;
   const body =
     entries
@@ -327,12 +328,15 @@ async function handlePushSafety(req, res) {
   const payload = JSON.stringify(notification);
 
   const results = await Promise.all(
-    subs.map((sub) =>
-      webPush
+    subs.map((sub) => {
+      if (excludeEndpoint && sub.endpoint === excludeEndpoint) {
+        return Promise.resolve({ ok: true, skipped: true });
+      }
+      return webPush
         .sendNotification(sub, payload)
         .then(() => ({ ok: true }))
-        .catch((err) => ({ ok: false, status: err?.statusCode, endpoint: sub?.endpoint }))
-    )
+        .catch((err) => ({ ok: false, status: err?.statusCode, endpoint: sub?.endpoint }));
+    })
   );
 
   const toRemove = new Set();

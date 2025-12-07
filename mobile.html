@@ -1247,11 +1247,21 @@
       if (!hits.length) return;
       const ready = await ensurePushActive();
       if (!ready) return;
+      let excludeEndpoint;
+      if (swRegistration?.pushManager?.getSubscription) {
+        try {
+          const currentSubscription = await swRegistration.pushManager.getSubscription();
+          excludeEndpoint = currentSubscription?.endpoint;
+        } catch {
+          // ignore
+        }
+      }
       try {
         await fetch("/api/push/safety", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            excludeEndpoint,
             entries: hits.slice(0, 10).map((h) => ({
               hex: h.hexNorm || h.ac.hex,
               call: h.ac.flight || h.ac.hex || "unknown",
