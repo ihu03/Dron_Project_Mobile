@@ -636,11 +636,12 @@
     const alertIndicator = document.getElementById("alert-indicator");
     const errorBox = document.getElementById("error-box");
     const countTotal = document.getElementById("count-total");
-    const countPos = document.getElementById("count-pos");
-    const pingMs = document.getElementById("ping-ms");
-    const permOverlay = document.getElementById("perm-overlay");
-    const permAccept = document.getElementById("perm-accept");
-    permAccept?.addEventListener("click", () => ensurePushActive(true));
+      const countPos = document.getElementById("count-pos");
+      const pingMs = document.getElementById("ping-ms");
+      const permOverlay = document.getElementById("perm-overlay");
+      const permAccept = document.getElementById("perm-accept");
+      const denyOverlay = document.getElementById("deny-overlay");
+      permAccept?.addEventListener("click", () => ensurePushActive(true));
 
     const setRangeFill = (input) => {
       if (!input) return;
@@ -1058,6 +1059,7 @@
         return false;
       }
       hidePermissionPrompt();
+      hidePermissionDenied();
 
       let subscription = await reg.pushManager.getSubscription();
       try {
@@ -1080,7 +1082,12 @@
       }
     }
 
+    function hidePermissionDenied() {
+      denyOverlay?.classList.add("hidden");
+    }
+
     function showPermissionPrompt() {
+      hidePermissionDenied();
       permOverlay?.classList.remove("hidden");
     }
 
@@ -1259,8 +1266,7 @@
     }
 
     function showPermissionDenied() {
-      const overlay = document.getElementById("deny-overlay");
-      overlay?.classList.remove("hidden");
+      denyOverlay?.classList.remove("hidden");
       // ?쒕룄: 釉뚮씪?곗?媛 ?덉슜?섎㈃ 李??リ린
       try {
         window.close();
@@ -1268,10 +1274,6 @@
         /* ignore */
       }
     }
-
-    permAccept?.addEventListener("click", () => {
-      ensurePushActive(true);
-    });
 
     async function openPlaneDetail(ac, pos = null) {
       if (!ac?.hex) return;

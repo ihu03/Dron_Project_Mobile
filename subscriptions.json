@@ -42,14 +42,6 @@
     }
   },
   {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/eUvKvQ9Fxxg:APA91bEWMOScNvj-0ObVU0GnzIlS8G3OCzA7SxfOIkim5ncgbCPXm7w9Phrajrt8xlynJEY9hNQChuxA-BwvafVDtPRy6FEFmiWempuRWTwGY5ZIe_HNczXUQEtw6qhrkootg9utICNf",
-    "expirationTime": null,
-    "keys": {
-      "p256dh": "BC9XH6UEB4yEY-TTM2cXgEtNU1PJsVK2_JKEW9aKUWpZib5DxT_AGF31ZndRhIUumFRqp86Z8DSbqR1qvnqe2YM",
-      "auth": "QVpn8qrLcvjaGeIdZ9B7QA"
-    }
-  },
-  {
     "endpoint": "https://web.push.apple.com/QHkk_zez1l3CzAJ2wkRfe43aC2cq1dhQRKC0Z5Gt83cbaMiuvbbyAQmmsFMrT4mwHPDfMMLy6_BKPGa6wVcx05kM6p1Ag0cxRs0YhbcMbsMWcqf8sNETHGMLsJc4tY-vV1uucev1KkBOYZmrLeACunPIzSFg-WAxq-9Ss9u4TTw",
     "keys": {
       "p256dh": "BDFnTbXm_u5mUL8zA5bHXkcH0hcxac0ilm2lXBNdqpqrlEaBPwVHWxlE0nZ-8w7cZnl_UYuSzEYoB8PASfCPcyY",
@@ -57,11 +49,24 @@
     }
   },
   {
-    "endpoint": "https://fcm.googleapis.com/fcm/send/elQfhywYQUc:APA91bGka4q67nyFHtlIDdlet-TfNc_BSIYc1IP8-bzgxy2Nd5ptV7QdieBjGx_QK8LlN2t_rUZEHC0KDOQ0Q7wQ5rEpBqCmoDHZvzXEUrhogwPbTfGvlVnE42o2n51AYbaXTVAoAWGf",
-    "expirationTime": null,
+    "endpoint": "https://web.push.apple.com/QExl6wbGdJKSsTX6g4QzJNbOT-Y86C-qJMGc171kOm4cjbmpY2rGoFi4LT9z479kAApLNBrNFCwT2lKWKpXcRDPsaukFKGLIwu3xDAZz_qT7W1HAzH-DgG3u8uFv-2V2MPmz6XQ1j0Mw3r9_iBB7P3GV0LuEwPTFuvV50wjE72U",
     "keys": {
-      "p256dh": "BFowBvi1kSllRhi0wu3mly8udq5O2uT5AG2cIAQM5hFGATlXl2Lpd77sWfcQRuArFC54EGUpVBCe3cyWkHHvSgE",
-      "auth": "K_q0myhVpDdm3P44OCX3vw"
+      "p256dh": "BOeWghtvHwCv4YAO07BHu7aLs6Ds1Ms2mODkvPw0uu33K-xkPys61xGa4am-BPLNiBW4mYjlEkJ04UG9kyvRyNo",
+      "auth": "ncEAJ1Hpn12p6VMe48nfUw"
+    }
+  },
+  {
+    "endpoint": "https://web.push.apple.com/QG58Dcvb1nh20FB4Bj0PHdD87-QS_sdtcY851c-krkViC3wYt6FujyvFWd4s5l-WqQvmzpkosYW2Nieukt9yKsSp-GiXMAXHrA3yZMBr2vWAoZo72K4QUzKj7H5tnHXONl8UDC-CgR3Rds2A2anOdAz6kcEwsY3Rn83pfwhZp_M",
+    "keys": {
+      "p256dh": "BJb_Puj9_3Ck09AfrEyVBEUXe7sTRBhbZlxlpLwo9ijAGBj4TnixUYDJWB-89sgDFg8vYUsTBMTpcQYrVKpUf_Q",
+      "auth": "BU9SzoMKeqnbGvxkQsfXmw"
+    }
+  },
+  {
+    "endpoint": "https://web.push.apple.com/QIfOgUpZUJnu7ux0AGpjZCwjjpdkeVHxR9vZXbdEnhLRZ-cpa3woVM4ZL22t7rzgP7PpnD10DBBpNT010WXY5gj0QbNj53XabPA1D2cYRh8v1GkFEQT_qu4jhuV6g0acGpFBWKgya_tNhXXLW15uPopAuIVokWipkZP8BBcMI78",
+    "keys": {
+      "p256dh": "BAbTo2hBaXW5gWWDU4-EMuPMnqx_4Oq6Joh8QZDY24f-5EzJfBccrswAALYF7_lYuxYT0dqykhnUoxwxmTUQZr0",
+      "auth": "OjLlROF9QRXMiH8MAqKgFw"
     }
   }
 ]
