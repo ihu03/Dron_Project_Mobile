@@ -1,5 +1,5 @@
-01번 실행 (최초 1회)
-02번 실행 (최초 1회)
+01번 실행 (다운로드 이후 최초 1회)
+02번 실행 (다운로드 이후 최초 1회)
 03번 실행 (웹 실행)
 04번 실행 (모바일 실행)
 
@@ -11,3 +11,9 @@
 - PC(서버) 에서 실행된 Forwarding 주소 (ex: https://virgie-unsegmental-seymour.ngrok-free.dev) 을 모바일 환경 (휴대폰 웹사이트에 입력)
 - !조건 : 같은 와이파이 또는 랜선에 연결되어있어야 접속 가능
 
+- 모바일 접속 후 홈화면에 바로가기 추가 해야 ( 푸쉬알림 권한 부여됨 )
+
+Update(2.0):
+- 추후 서버 환경으로 옮길 예정
+
+(최신버전 다운로드 링크 : https://github.com/ihu03/Dron_Project_Mobile/archive/refs/heads/main.zip)
