@@ -12,6 +12,14 @@ let safetyRadiusKm = 5;
 let suppressAutoSelect = false;
 const APPROACH_KM_PER_MIN = 12; // 분당 접근 거리(km) 기준 속도(약 720km/h)
 const MAP_BRIGHTNESS_DEFAULT = 70;
+const ALTITUDE_COLOR_STOPS = [
+  { altitude: 0, color: "#ff6b00" },
+  { altitude: 2000, color: "#fcd34d" },
+  { altitude: 4000, color: "#22c55e" },
+  { altitude: 8000, color: "#0ea5e9" },
+  { altitude: 12000, color: "#6366f1" },
+  { altitude: 15000, color: "#d946ef" },
+];
 
 // Leaflet 지도 초기화
 const map = L.map("map", { worldCopyJump: true }).setView([37.5665, 126.9780], 8);
@@ -410,6 +418,20 @@ function lerpColor(a, b, t) {
   return `#${rr.toString(16).padStart(2, "0")}${rg.toString(16).padStart(2, "0")}${rb.toString(16).padStart(2, "0")}`;
 }
 
+function isHelicopter(ac) {
+  if (!ac) return false;
+  const category = String(ac.category || "").toUpperCase();
+  if (category.startsWith("H")) return true;
+  const keywords = ["hel", "chop"];
+  const textFields = ["aircrafttype", "model", "registration"];
+  for (const field of textFields) {
+    const value = String(ac[field] || "").toLowerCase();
+    if (keywords.some((kw) => value.includes(kw))) return true;
+  }
+  const flight = String(ac.flight || "").toLowerCase();
+  return keywords.some((kw) => flight.includes(kw));
+}
+
 // -1.0(진하게/어둡게) ~ 1.0(밝게) 보정
 function adjustColor(hex, t = 0) {
   const [r, g, b] = hexToRgb(hex);
@@ -439,25 +461,17 @@ function isWithinCylinder(target, other, radiusKm, options = {}) {
 // 고도별 색상: 저고도 진/밝은 초록, 중고도 진/밝은 블루, 고고도 진/밝은 보라
 function altitudeToColor(ac) {
   const altM = Math.max(0, Number.isFinite(altitudeMeters(ac)) ? altitudeMeters(ac) : 0);
-  const bands = [
-    // 저고도: 밝은 블루 (레이더/안전 반경 색과 겹치지 않도록 블루 계열)
-    { max: 2000, from: adjustColor("#00A8FF", -0.15), to: adjustColor("#00A8FF", 0.25) },
-    // 중고도: 선명한 그린
-    { max: 8000, from: adjustColor("#22C55E", -0.15), to: adjustColor("#22C55E", 0.25) },
-    // 고고도: 강한 퍼플
-    { max: Infinity, from: adjustColor("#A855F7", -0.15), to: adjustColor("#A855F7", 0.25) },
-  ];
-
-  let prevMax = 0;
-  for (const band of bands) {
-    if (altM <= band.max) {
-      const range = band.max - prevMax;
-      const t = !Number.isFinite(range) ? 0 : (altM - prevMax) / Math.max(range, 1);
-      return lerpColor(band.from, band.to, t);
+  let prev = ALTITUDE_COLOR_STOPS[0];
+  for (let i = 1; i < ALTITUDE_COLOR_STOPS.length; i++) {
+    const next = ALTITUDE_COLOR_STOPS[i];
+    if (altM <= next.altitude) {
+      const range = Math.max(next.altitude - prev.altitude, 1);
+      const t = (altM - prev.altitude) / range;
+      return lerpColor(prev.color, next.color, t);
     }
-    prevMax = band.max;
+    prev = next;
   }
-  return bands[bands.length - 1].to;
+  return ALTITUDE_COLOR_STOPS[ALTITUDE_COLOR_STOPS.length - 1].color;
 }
 
 function pickColor(ac) {
@@ -516,7 +530,21 @@ function createIcon(ac, color, isSelected, shape = "plane") {
       <path d="M11.25 3c0-.7.55-1.25 1.25-1.25S13.75 2.3 13.75 3v3.2l1.7-1.7a1 1 0 0 1 1.4 1.4L14.5 8.3H17c.7 0 1.25.55 1.25 1.25S17.7 10.8 17 10.8h-2.5l1.7 1.7a1 1 0 1 1-1.4 1.4L13.75 12V15c0 .7-.55 1.25-1.25 1.25S11.25 15.7 11.25 15V12l-1.7 1.7a1 1 0 0 1-1.4-1.4l1.7-1.7H7c-.7 0-1.25-.55-1.25-1.25S6.3 8.3 7 8.3h2.5L7.8 5.9a1 1 0 0 1 1.4-1.4l2.05 2.05z" stroke="${outline}" stroke-width="1.2" stroke-linejoin="round" />
       <path d="M12 4.3 13.2 6.5h-2.4L12 4.3z" />
       <circle cx="12" cy="12" r="2.2" />`;
-  const body = shape === "drone" ? droneSvg : planeSvg;
+  const heliStroke = isSelected ? outline : "rgba(0,0,0,0.35)";
+  const helicopterSvg = `
+      <path d="M2 6h20" stroke="${heliStroke}" stroke-width="1.4" stroke-linecap="round" />
+      <rect x="6" y="10" width="12" height="6" rx="3" fill="currentColor" stroke="${heliStroke}" stroke-width="1.2" />
+      <rect x="16" y="12" width="6" height="2.4" rx="1.2" fill="currentColor" stroke="${heliStroke}" stroke-width="1.1" />
+      <path d="M4 18H7m10 0h6" stroke="${heliStroke}" stroke-width="1.6" stroke-linecap="round" />
+      <path d="M5 20l3 3M16 20l3 3" stroke="${heliStroke}" stroke-width="1.5" stroke-linecap="round" />
+      <path d="M20 13l4 1" stroke="${heliStroke}" stroke-width="1.2" stroke-linecap="round" />
+    `;
+  const body =
+    shape === "drone"
+      ? droneSvg
+      : shape === "helicopter"
+      ? helicopterSvg
+      : planeSvg;
   return L.divIcon({
     className: `plane-icon${isSelected ? " selected" : ""}`,
     iconSize: [34, 34],
@@ -571,7 +599,7 @@ function refreshSelectedIcons() {
     const base = pickColor(ac);
     const color = getAlertColor(ac) || base;
     const isFake = fakePlanes.some((f) => f.hex === hex);
-    const shape = isFake ? "drone" : "plane";
+    const shape = isFake ? "drone" : isHelicopter(ac) ? "helicopter" : "plane";
     entry.marker.setIcon(createIcon(ac, color, hex === selectedHex, shape));
     if (trailLines.has(hex)) {
       trailLines.get(hex).setStyle({ color });
@@ -593,7 +621,7 @@ function updateMap(aircraft, fakeSet = new Set()) {
 
     const base = pickColor(ac);
     const color = getAlertColor(ac) || base;
-    const shape = fakeSet.has(hex) ? "drone" : "plane";
+    const shape = fakeSet.has(hex) ? "drone" : isHelicopter(ac) ? "helicopter" : "plane";
     const icon = createIcon(ac, color, hex === selectedHex, shape);
 
     if (!markers.has(hex)) {
